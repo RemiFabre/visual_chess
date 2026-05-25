@@ -47,53 +47,55 @@ function drawBorders(layer, ctrl) {
     if (wn === 0 && bn === 0) continue;
     const { x, y } = squareXY(i);
 
-    if (wn > 0 && bn === 0) drawFullBorder(layer, x, y, WHITE_RGB, widthFor(wn));
-    else if (bn > 0 && wn === 0) drawFullBorder(layer, x, y, BLACK_RGB, widthFor(bn));
-    else drawSplitBorder(layer, x, y, wn, bn);
+    // White always paints only the BOTTOM half border (white's side of the square).
+    // Black always paints only the TOP half border (black's side).
+    // When both control, the two halves meet at the mid-height of the side edges.
+    if (wn > 0) drawBottomHalf(layer, x, y, WHITE_RGB, widthFor(wn));
+    if (bn > 0) drawTopHalf(layer, x, y, BLACK_RGB, widthFor(bn));
   }
 }
 
-function drawFullBorder(layer, x, y, color, width) {
-  // Inset the rect by half-width so the stroke is fully inside the square.
+// Draws a U-shape: down the left side from middle to bottom, across the bottom, up the right side
+// from bottom to middle. Inset so the stroke stays entirely inside the square.
+function drawBottomHalf(layer, x, y, color, width) {
   const inset = width / 2 + 0.5;
-  const r = el('rect', {
-    x: x + inset, y: y + inset, width: SQ - 2 * inset, height: SQ - 2 * inset,
-    fill: 'none', stroke: rgb(color), 'stroke-width': width, 'stroke-linejoin': 'miter',
+  const points =
+    `${x + inset},${y + SQ / 2} ` +
+    `${x + inset},${y + SQ - inset} ` +
+    `${x + SQ - inset},${y + SQ - inset} ` +
+    `${x + SQ - inset},${y + SQ / 2}`;
+  const p = el('polyline', {
+    points, fill: 'none', stroke: rgb(color), 'stroke-width': width,
+    'stroke-linejoin': 'miter', 'stroke-linecap': 'butt',
   });
-  layer.appendChild(r);
+  layer.appendChild(p);
 }
 
-function drawSplitBorder(layer, x, y, wn, bn) {
-  // Top + right = white, bottom + left = black.
-  // Each pair gets its own stroke width.
-  const wWidth = widthFor(wn);
-  const bWidth = widthFor(bn);
-  const wInset = wWidth / 2 + 0.5;
-  const bInset = bWidth / 2 + 0.5;
-
-  // Use polyline for each L-shape.
-  // Top + right (white):
-  const wPath = el('polyline', {
-    points: `${x + bInset},${y + wInset} ${x + SQ - wInset},${y + wInset} ${x + SQ - wInset},${y + SQ - bInset}`,
-    fill: 'none', stroke: rgb(WHITE_RGB), 'stroke-width': wWidth, 'stroke-linejoin': 'miter',
+// Inverted U: up the left side from middle to top, across the top, down the right side to middle.
+function drawTopHalf(layer, x, y, color, width) {
+  const inset = width / 2 + 0.5;
+  const points =
+    `${x + inset},${y + SQ / 2} ` +
+    `${x + inset},${y + inset} ` +
+    `${x + SQ - inset},${y + inset} ` +
+    `${x + SQ - inset},${y + SQ / 2}`;
+  const p = el('polyline', {
+    points, fill: 'none', stroke: rgb(color), 'stroke-width': width,
+    'stroke-linejoin': 'miter', 'stroke-linecap': 'butt',
   });
-  // Bottom + left (black):
-  const bPath = el('polyline', {
-    points: `${x + SQ - wInset},${y + SQ - bInset} ${x + bInset},${y + SQ - bInset} ${x + bInset},${y + wInset}`,
-    fill: 'none', stroke: rgb(BLACK_RGB), 'stroke-width': bWidth, 'stroke-linejoin': 'miter',
-  });
-  layer.appendChild(wPath);
-  layer.appendChild(bPath);
+  layer.appendChild(p);
 }
 
 function drawCounts(layer, ctrl) {
+  // White's count sits near the bottom of the square (closer to white's side of the board).
+  // Black's count sits near the top (closer to black's side).
   for (let i = 0; i < 64; i++) {
     const wn = ctrl[i].w.length;
     const bn = ctrl[i].b.length;
     if (wn === 0 && bn === 0) continue;
     const { x, y } = squareXY(i);
-    if (wn > 0) addCount(layer, x + 8, y + 16, wn, WHITE_RGB, 'start');
-    if (bn > 0) addCount(layer, x + SQ - 8, y + SQ - 8, bn, BLACK_RGB, 'end');
+    if (wn > 0) addCount(layer, x + 8, y + SQ - 6, wn, WHITE_RGB, 'start'); // bottom-left
+    if (bn > 0) addCount(layer, x + SQ - 8, y + 18, bn, BLACK_RGB, 'end'); // top-right
   }
 }
 
@@ -139,8 +141,8 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><b>Borders mode:</b> orange = white controls, blue = black controls. Thicker border = more attackers (capped at 4). Contested squares get a split border — white on top+right, black on bottom+left.</div>
+    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half, black the top — when a square is contested the two colors meet face-to-face at the side edges. Thicker border = more attackers (capped at 4).</div>
     <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, no colors — for when the borders feel busy.</div>
-    <div style="margin-top: 8px;">Numeric badges in opposing corners always reflect each side's attacker count.</div>
+    <div style="margin-top: 8px;">Numeric badges: white's count sits at the bottom of each square (white's side), black's count at the top.</div>
   `;
 }
