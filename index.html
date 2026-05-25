@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Chess — Prototype</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header">
+      <h1>Visual Chess</h1>
+      <p>Layered visualizations for chess beginners. <a href="STATUS.md" style="color: var(--accent);">Project status &rarr;</a></p>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-viz="viz1">1 · Controlled space</button>
+      <button class="tab" data-viz="viz2">2 · Attack paths</button>
+      <button class="tab" data-viz="viz3">3 · Pins &amp; protection</button>
+      <button class="tab" data-viz="viz4">4 · Thought bubbles</button>
+    </nav>
+
+    <div class="layout">
+      <div class="board-area" id="board-area">
+        <!-- board SVG injected here -->
+      </div>
+
+      <aside class="sidebar">
+        <div class="card">
+          <h2>Position</h2>
+          <div class="position-list" id="position-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>FEN</h2>
+          <input type="text" class="fen-input" id="fen-input" />
+        </div>
+
+        <div class="card" id="viz-controls">
+          <h2>Controls</h2>
+          <div class="controls" id="controls-body"></div>
+        </div>
+
+        <div class="card">
+          <h2>Legend</h2>
+          <div class="legend" id="legend"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
