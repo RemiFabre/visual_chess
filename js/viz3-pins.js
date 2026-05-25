@@ -17,7 +17,7 @@ export function render(container, fen, controls) {
   // Draw protection halos *behind* the pieces (in the control layer slot).
   for (let i = 0; i < 64; i++) {
     const p = board[i];
-    if (!p) continue;
+    if (!p || p.piece === 'K') continue;
     const friendly = defenders[i].length;
     const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
     const isHanging = enemy > 0 && friendly === 0;
@@ -46,6 +46,7 @@ export function render(container, fen, controls) {
   // Pieces — ghost unprotected pieces.
   renderPieces(layers.pieces, board, {
     opacityFor: (i, p) => {
+      if (p.piece === 'K') return 1;
       const friendly = defenders[i].length;
       const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
       if (enemy > 0 && friendly === 0) return 0.5; // hanging
@@ -53,23 +54,13 @@ export function render(container, fen, controls) {
     },
   });
 
-  // Ice overlays on pinned pieces.
+  // Ice overlays on pinned pieces (drawn over pieces — layer order puts pins on top).
   for (let i = 0; i < 64; i++) {
     const pin = pins[i];
     if (!pin) continue;
     drawIce(layers.pins, i, pin);
-    // Also draw a faint line showing what they're pinned by → to.
     if (controls.showPinLine) drawPinLine(layers.pins, pin);
   }
-
-  renderPieces(layers.pieces, board, {
-    opacityFor: (i, p) => {
-      const friendly = defenders[i].length;
-      const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
-      if (enemy > 0 && friendly === 0) return 0.5;
-      return 1;
-    },
-  });
 }
 
 function drawIce(layer, idx, pin) {

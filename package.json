@@ -1,0 +1,24 @@
+{
+  "name": "visual_chess",
+  "version": "1.0.0",
+  "description": "Prototyping richer visualizations for chess beginners — controlled squares, attack paths, pins, overloaded defenders.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RemiFabre/visual_chess.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/RemiFabre/visual_chess/issues"
+  },
+  "homepage": "https://github.com/RemiFabre/visual_chess#readme",
+  "devDependencies": {
+    "puppeteer": "^25.0.4"
+  }
+}

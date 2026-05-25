@@ -22,14 +22,16 @@ export function render(container, fen, controls) {
   for (let i = 0; i < 64; i++) {
     const p = board[i];
     if (!p) continue;
-    const defends = defending[i];
+    // Exclude king from "defends" — king isn't a real defender target (can't be captured).
+    const defends = defending[i].filter(sq => board[sq].piece !== 'K');
     if (defends.length === 0) continue;
     if (controls.sideFilter !== 'both' && controls.sideFilter !== p.color) continue;
 
-    // Overload score = sum of values of pieces being defended, minus a small constant.
-    // A bishop defending 1 pawn = 1 → "fine". A queen defending 3 pieces (rook + bishop + pawn) = 9 → heavy.
     const load = defends.reduce((s, sq) => s + pieceValue(board[sq].piece), 0);
-    const overload = load >= 5; // tunable
+    const overload = defends.length >= 2 && load >= 4;
+
+    if (controls.mode === 'overloaded' && !overload) continue;
+    if (controls.mode === 'multi' && defends.length < 2) continue;
 
     drawBubble(layers.bubbles, i, p, defends.map(sq => board[sq]), { overload, board });
   }
@@ -49,10 +51,16 @@ function drawBubble(layer, fromIdx, piece, defendedPieces, { overload, board }) 
   const w = 38 + defendedPieces.length * 22;
   const h = 38;
   let bx, by;
+  let placed = false;
   for (const o of offsets) {
     bx = center.x + o.dx - w / 2;
     by = center.y + o.dy - h / 2;
-    if (bx > 4 && bx + w < 720 - 4 && by > 4 && by + h < 720 - 4) break;
+    if (bx > 4 && bx + w < 720 - 4 && by > 4 && by + h < 720 - 4) { placed = true; break; }
+  }
+  if (!placed) {
+    // Clamp to board boundaries.
+    bx = Math.max(4, Math.min(720 - 4 - w, bx));
+    by = Math.max(4, Math.min(720 - 4 - h, by));
   }
 
   const g = group();
@@ -104,16 +112,24 @@ function drawBubble(layer, fromIdx, piece, defendedPieces, { overload, board }) 
   layer.appendChild(g);
 }
 
-export const DEFAULTS = { sideFilter: 'both' };
+export const DEFAULTS = { sideFilter: 'both', mode: 'multi' };
 export const NAME = 'Thought bubbles';
 export function buildControls(root, state, onChange) {
   root.innerHTML = '';
+
   const sideLabel = document.createElement('label');
   sideLabel.innerHTML = `Side <select><option value="both">both</option><option value="w">white</option><option value="b">black</option></select>`;
   const sideSelect = sideLabel.querySelector('select');
   sideSelect.value = state.sideFilter;
   sideSelect.addEventListener('change', () => { state.sideFilter = sideSelect.value; onChange(); });
-  root.append(sideLabel);
+
+  const modeLabel = document.createElement('label');
+  modeLabel.innerHTML = `Show <select><option value="all">all defenders</option><option value="multi">2+ defended (clearer)</option><option value="overloaded">overloaded only</option></select>`;
+  const modeSelect = modeLabel.querySelector('select');
+  modeSelect.value = state.mode;
+  modeSelect.addEventListener('change', () => { state.mode = modeSelect.value; onChange(); });
+
+  root.append(sideLabel, modeLabel);
 }
 export function legendHTML() {
   return `
