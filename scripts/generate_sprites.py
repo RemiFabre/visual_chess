@@ -62,19 +62,22 @@ def piece_prompt(piece: str, color: str) -> str:
     )
 
 ICE_PROMPT = (
-    "A semi-transparent ice block / ice cube sprite, viewed from the front. "
-    "Frosty pale-blue color with white frost highlights, jagged crystalline top edge, "
-    "small bubbles trapped inside, a few sparkles. The ice is meant to be overlaid on a "
-    "chess piece to make it look frozen-in-place. Squarish shape that fills a square cell. "
-    "Fully transparent background, no scene around it. "
-    "Cute, friendly art style with bold dark outlines matching a kids chess game."
+    "A pile of jagged crystalline ice shards stacked together, not a single block. Irregular "
+    "broken edges everywhere, no straight lines anywhere. Translucent pale-blue ice with bright "
+    "white frost highlights, a few trapped bubbles, sparkles catching the light. The pile is "
+    "roughly hill-shaped, wider at the bottom and tapering toward the top into sharp uneven peaks. "
+    "Designed to overlay a chess piece to make it look frozen in place. Fully transparent "
+    "background, no scene around it. Cute kawaii illustration style with bold dark outlines, "
+    "centered in the frame."
 )
 
 ICE_HALF_PROMPT = (
-    "A semi-transparent ice block sprite, like a chunk of frost climbing up from the bottom "
-    "of a square. Frosty pale-blue with white highlights, jagged crystalline top edge halfway up the frame, "
-    "small bubbles and sparkles. Designed to overlay just the bottom half of a chess piece "
-    "so the piece looks partially frozen. Fully transparent background. Cute kids-game art style."
+    "A single small jagged ice shard, irregular crystalline shape like a chunk broken off a "
+    "larger ice formation. Translucent pale-blue with bright white frost highlights and a couple "
+    "of trapped bubbles. Sharp uneven edges on every side, no straight lines anywhere. Sized like "
+    "a small wedge or fragment, low and compact. Designed to overlay just the lower portion of a "
+    "chess piece. Fully transparent background. Cute kawaii illustration style with bold dark "
+    "outlines, centered in the frame."
 )
 
 THOUGHT_BUBBLE_PROMPT = (

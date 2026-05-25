@@ -80,45 +80,24 @@ function iceCoverage(pin, board) {
 
 function drawIce(layer, idx, pin, board) {
   const { x, y } = squareXY(idx);
-  const isAbsolute = pin.severity === 'absolute';
 
-  const pinned = board[idx];
-  const behindVal = pieceValue(pin.behindPiece);
-  const pinnedVal = pieceValue(pinned.piece);
-  const diff = behindVal - pinnedVal;
+  // Two flavours: big ice when the pin protects the king or the queen (the high-stakes pins),
+  // small ice otherwise. Cleaner mental model than the value-differential ladder we had before.
+  const isBigStake = pin.behindPiece === 'K' || pin.behindPiece === 'Q';
+  const spriteName = isBigStake ? 'ice_full' : 'ice_half';
 
-  // Ice cover, shrunk so we can crank opacity up. Goal: the ice reads as solid ice,
-  // not water, but never hides enough of the piece to make it unidentifiable.
-  let cover;
-  if (isAbsolute) cover = 0.42;
-  else if (diff <= 1) cover = 0.18;
-  else if (diff === 2) cover = 0.26;
-  else if (diff <= 4) cover = 0.34;
-  else cover = 0.40;
+  // The sprites are roughly square; display them as squares so the new jagged silhouette reads
+  // properly. Anchored at the bottom of the cell so the ice looks like it's growing from the floor.
+  const size = SQ * (isBigStake ? 0.55 : 0.38);
+  const iceX = x + (SQ - size) / 2;
+  const iceY = y + SQ - size - 2;
 
-  const opacity = 0.92;
-  const spriteName = (isAbsolute || diff >= 4) ? 'ice_full' : 'ice_half';
-
-  const iceH = SQ * cover;
-  const iceY = y + SQ - iceH - 2;
-  const img = el('image', {
-    x: x + 2, y: iceY, width: SQ - 4, height: iceH,
+  layer.appendChild(el('image', {
+    x: iceX, y: iceY, width: size, height: size,
     href: `sprites/${spriteName}.png`,
-    preserveAspectRatio: 'xMidYMid slice',
-    opacity,
-  });
-  layer.appendChild(img);
-
-  // Severity badge, small label below the ice.
-  const label = isAbsolute ? 'PIN' : 'pin';
-  const t = el('text', {
-    x: x + SQ / 2, y: y + SQ - 4,
-    'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700,
-    fill: '#0a3852', stroke: 'rgba(255,255,255,0.95)', 'stroke-width': 2.5, 'paint-order': 'stroke',
-    'font-family': 'sans-serif',
-  });
-  t.textContent = label;
-  layer.appendChild(t);
+    preserveAspectRatio: 'xMidYMid meet',
+    opacity: 0.95,
+  }));
 }
 
 function drawPinLine(layer, pin, board) {
@@ -169,7 +148,7 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Height grows with how much is at stake behind it (light sliver = pawn pinned against a knight; tall block = piece pinned against the king).</div>
+    <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Big pile = pinned against the king or the queen (the high-stakes pins). Small shard = pinned against a less valuable piece.</div>
     <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Green ring, piece is defended (thicker = more defenders).</div>
     <div style="margin-top: 6px;"><span class="swatch" style="background: transparent; border: 2px dashed #ff6b6b"></span> Red dashed ring, hanging (attacked &amp; undefended). Glyph also fades.</div>
     <div style="margin-top: 6px;">Pin line is dashed in the attacker's color, pink if a white piece is doing the pinning, blue if it's a black piece.</div>
