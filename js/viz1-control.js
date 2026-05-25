@@ -1,28 +1,21 @@
-// Visualization 1: controlled-space, two modes.
-//   - "borders": square color unchanged; each square gets colored INSET borders.
-//     If only one side attacks → all 4 borders that color.
-//     If both attack → top+right = side with more attackers (or white if tied), bottom+left = the other side.
-//     Stroke width scales with that side's attacker count.
-//   - "numbers": no colors at all, just attacker-count digits in opposing corners.
+// Visualization 1: controlled space, full-square proportional fill.
 //
-// "Show counts" toggle adds numeric badges in the corners on top of the borders.
+// Uncontested squares keep their board colour. Squares attacked by only one side are entirely
+// recoloured in that side's tint. Contested squares are split horizontally in proportion to the
+// attacker ratio, white half at the bottom (white's side of the board), black half at the top.
+//
+// Goal: see space dominance and pressure from across the room.
 
 import { parseFEN, computeControl } from './chess-utils.js';
 import { createBoardSVG, renderPieces, squareXY, SQ, el } from './board.js';
 
-// Hot pink for white, deep blue for black. Both sit far from the brown/beige board palette
-// so the visualization reads from across the room, and warm-vs-cool keeps the sides intuitive.
-const WHITE_RGB = [219, 39, 119]; // #db2777
-const BLACK_RGB = [30, 58, 138];  // #1e3a8a
-const MAX_INT = 4;
+// Softer than the previous hot pink/navy. Warm peach for white, mid blue for black,
+// both at low saturation so the pieces on top stay readable.
+const WHITE_RGB = [240, 152, 96];  // #f09860 warm peach
+const BLACK_RGB = [88, 134, 215];  // #5886d7 mid blue
+const FILL_ALPHA = 0.82;
 
 function rgb([r, g, b], a = 1) { return `rgba(${r}, ${g}, ${b}, ${a})`; }
-
-function widthFor(n) {
-  // Constant width regardless of attacker count. Intensity is conveyed by the digit,
-  // not the stroke (varying widths made the borders look uneven and a bit ugly).
-  return n > 0 ? 4.3 : 0;
-}
 
 export function render(container, fen, controls) {
   const { board } = parseFEN(fen);
@@ -31,122 +24,74 @@ export function render(container, fen, controls) {
   const { svg, layers } = createBoardSVG();
   container.replaceChildren(svg);
 
-  if (controls.mode === 'borders') {
-    drawBorders(layers.control, ctrl);
-  }
-
-  if (controls.showCounts) {
-    drawCounts(layers.control, ctrl);
-  }
+  drawProportionalFills(layers.control, ctrl);
+  if (controls.showCounts) drawCounts(layers.control, ctrl);
 
   renderPieces(layers.pieces, board);
 }
 
-function drawBorders(layer, ctrl) {
+function drawProportionalFills(layer, ctrl) {
   for (let i = 0; i < 64; i++) {
     const wn = ctrl[i].w.length;
     const bn = ctrl[i].b.length;
     if (wn === 0 && bn === 0) continue;
     const { x, y } = squareXY(i);
-
-    // White always paints only the BOTTOM half border (white's side of the square).
-    // Black always paints only the TOP half border (black's side).
-    // When both control, the two halves meet at the mid-height of the side edges.
-    if (wn > 0) drawBottomHalf(layer, x, y, WHITE_RGB, widthFor(wn));
-    if (bn > 0) drawTopHalf(layer, x, y, BLACK_RGB, widthFor(bn));
+    const total = wn + bn;
+    if (wn > 0) {
+      const h = SQ * (wn / total);
+      layer.appendChild(el('rect', {
+        x, y: y + SQ - h, width: SQ, height: h,
+        fill: rgb(WHITE_RGB, FILL_ALPHA),
+      }));
+    }
+    if (bn > 0) {
+      const h = SQ * (bn / total);
+      layer.appendChild(el('rect', {
+        x, y, width: SQ, height: h,
+        fill: rgb(BLACK_RGB, FILL_ALPHA),
+      }));
+    }
   }
-}
-
-// Draws a U-shape: down the left side from middle to bottom, across the bottom, up the right side
-// from bottom to middle. Inset so the stroke stays entirely inside the square.
-function drawBottomHalf(layer, x, y, color, width) {
-  const inset = width / 2 + 0.5;
-  const points =
-    `${x + inset},${y + SQ / 2} ` +
-    `${x + inset},${y + SQ - inset} ` +
-    `${x + SQ - inset},${y + SQ - inset} ` +
-    `${x + SQ - inset},${y + SQ / 2}`;
-  const p = el('polyline', {
-    points, fill: 'none', stroke: rgb(color), 'stroke-width': width,
-    'stroke-linejoin': 'miter', 'stroke-linecap': 'butt',
-  });
-  layer.appendChild(p);
-}
-
-// Inverted U: up the left side from middle to top, across the top, down the right side to middle.
-function drawTopHalf(layer, x, y, color, width) {
-  const inset = width / 2 + 0.5;
-  const points =
-    `${x + inset},${y + SQ / 2} ` +
-    `${x + inset},${y + inset} ` +
-    `${x + SQ - inset},${y + inset} ` +
-    `${x + SQ - inset},${y + SQ / 2}`;
-  const p = el('polyline', {
-    points, fill: 'none', stroke: rgb(color), 'stroke-width': width,
-    'stroke-linejoin': 'miter', 'stroke-linecap': 'butt',
-  });
-  layer.appendChild(p);
 }
 
 function drawCounts(layer, ctrl) {
-  // Both counts on the right side of each square: white near the bottom, black near the top.
-  // Right-anchored keeps them off the pieces (which are centered) and avoids the diagonal-opposition
-  // pattern. They still sit on each side's half of the square.
   for (let i = 0; i < 64; i++) {
     const wn = ctrl[i].w.length;
     const bn = ctrl[i].b.length;
     if (wn === 0 && bn === 0) continue;
     const { x, y } = squareXY(i);
-    const rx = x + SQ - 6;
-    if (wn > 0) addCount(layer, rx, y + SQ - 6, wn, WHITE_RGB);
-    if (bn > 0) addCount(layer, rx, y + 18, bn, BLACK_RGB);
+    if (wn > 0) addCount(layer, x + SQ - 6, y + SQ - 6, wn);
+    if (bn > 0) addCount(layer, x + SQ - 6, y + 18, bn);
   }
 }
 
-function addCount(layer, x, y, n, rgbArr) {
-  // No outline: the white halo around the digits made them harder to read.
+function addCount(layer, x, y, n) {
   const t = el('text', {
     x, y,
-    fill: rgb(rgbArr),
-    'font-size': 14, 'font-weight': 500, 'text-anchor': 'end',
+    fill: '#fff',
+    'font-size': 13, 'font-weight': 600, 'text-anchor': 'end',
     'font-family': 'sans-serif',
   });
   t.textContent = String(n);
   layer.appendChild(t);
 }
 
-export const DEFAULTS = { mode: 'borders', showCounts: true };
+export const DEFAULTS = { showCounts: true };
 export const NAME = 'Controlled space';
 export function buildControls(root, state, onChange) {
   root.innerHTML = '';
-
-  const mkRadio = (group, value, label) => {
-    const l = document.createElement('label');
-    const r = document.createElement('input');
-    r.type = 'radio'; r.name = group; r.value = value;
-    r.checked = state[group] === value;
-    r.addEventListener('change', () => { state[group] = value; onChange(); });
-    l.append(r, document.createTextNode(label));
-    return l;
-  };
-
-  const modeDiv = document.createElement('div');
-  modeDiv.style.cssText = 'display: flex; gap: 12px; flex-basis: 100%;';
-  modeDiv.append(mkRadio('mode', 'borders', 'Colored borders'), mkRadio('mode', 'numbers', 'Numbers only'));
-  root.append(modeDiv);
-
-  const cbLabel = document.createElement('label');
+  const label = document.createElement('label');
   const cb = document.createElement('input');
   cb.type = 'checkbox';
   cb.checked = state.showCounts;
   cb.addEventListener('change', () => { state.showCounts = cb.checked; onChange(); });
-  cbLabel.append(cb, document.createTextNode('Show numeric counts'));
-  root.appendChild(cbLabel);
+  label.append(cb, document.createTextNode('Show attacker counts'));
+  root.appendChild(label);
 }
 export function legendHTML() {
   return `
-    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half (pink), black the top (blue); contested squares show both colors meeting at the side edges. Border thickness is constant; the digit tells us how many attackers.</div>
-    <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, for when the borders feel busy.</div>
-    <div style="margin-top: 8px;">White's count sits at the bottom-right of each square (white's side), black's at the top-right. Right-aligned so they stay off the piece glyph.</div>
+    <div>Each square is filled with the controllers' colours. Uncontested squares keep their original board colour.</div>
+    <div style="margin-top: 6px;">Contested squares split horizontally in proportion to the attacker counts. White (peach) at the bottom (white's side), black (blue) at the top. A 3:1 ratio means roughly three-quarters of the square is the dominant side's colour, so pressure and space dominance read at a glance.</div>
+    <div style="margin-top: 6px;">Numbers in the right margins are the raw counts per side; turn them off if you only want the painted ratio.</div>
   `;
 }

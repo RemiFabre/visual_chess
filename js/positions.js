@@ -63,6 +63,11 @@ export const POSITIONS = [
     fen: '5rk1/1b3ppp/2n1p3/3pN3/3P4/4P3/P1P2PPP/1R4K1 w - - 0 1',
     notes: 'Deflection theme. Nc6 is defended only by Bb7 (dotted green ring, no pawn anchor). Bb7 itself has no defender, and the b-file is clear. White plays Rxb7!, then Nxc6, winning bishop + knight for free. Naroditsky calls piece-only-defended pieces "deflectable".',
   },
+  {
+    name: 'Réti–Tartakower, the d-file battery',
+    fen: 'rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9',
+    notes: 'Discovered rook theme (Réti vs Tartakower, Berlin 1910). Rd1 is solid to Bd2, then dotted through Qd3 to d8 where the black king sits. White plays 9.Qd8+!! Kxd8 10.Bg5+ Bd2 moves and the rook smashes home with Rd1xd8#. Viz 2 makes the latent rook threat visible.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
