@@ -127,9 +127,9 @@ export function computeAttackMap(board) {
     const vectors = pieceAttackVectors(board, i);
     for (const v of vectors) {
       // Each square along the ray up to (and including) the blocker is "attacked" only at the blocker square
-      // for control purposes, except: sliders also pass *through* empty squares — those are controlled too.
+      // for control purposes, except: sliders also pass *through* empty squares, those are controlled too.
       // For "control of a square" we want: every square along the ray up to and including the first blocker
-      // (the blocker square is also attacked — you could capture it).
+      // (the blocker square is also attacked, you could capture it).
       for (const sq of v.ray) {
         map[sq][p.color].push(i);
       }
@@ -195,12 +195,12 @@ export function computePins(board) {
         const isOrth = (v.dir[0] === 0) !== (v.dir[1] === 0);
         if (attacker.piece === 'B' && !isDiag) continue;
         if (attacker.piece === 'R' && !isOrth) continue;
-        // Q does both — fine.
+        // Q does both, fine.
 
         const rayIdx = v.ray.indexOf(i);
         if (rayIdx < 0) continue;
         // The piece behind i on the same ray is v.ray[rayIdx+1..end] up to first blocker.
-        // Actually: after removing piece i, the ray continues until it hits a piece — that piece is the blocker.
+        // Actually: after removing piece i, the ray continues until it hits a piece, that piece is the blocker.
         // But the *ray* we computed already accounts for piece i being removed. So v.blockedBy is the piece
         // behind i (or null if ray went to edge).
         const behindIdx = v.blockedBy;
@@ -232,7 +232,7 @@ export function pieceValue(p) {
 }
 
 // For each piece on the board, the list of friendly pieces it defends (i.e. friendly pieces that sit on a square
-// attacked by this piece). Used for thought bubbles + protection rendering.
+// attacked by this piece). Used for the protection rendering in viz 3.
 export function computeDefendedMap(board) {
   // For each square that holds a piece, who defends it?
   const defenders = Array.from({ length: 64 }, () => []);
@@ -256,6 +256,6 @@ export function computeDefendedMap(board) {
 }
 
 // Who attacks each square (per color), but stopping the ray *at* the first blocker
-// (the blocker itself is included — you can capture it). This is what we want for control.
-// Already computed by computeAttackMap — alias.
+// (the blocker itself is included, you can capture it). This is what we want for control.
+// Already computed by computeAttackMap, alias.
 export const computeControl = computeAttackMap;

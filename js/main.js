@@ -1,16 +1,14 @@
-// Main entry — tab switching, position picking, dispatch to active viz.
+// Main entry, tab switching, position picking, dispatch to active viz.
 
 import * as Viz1 from './viz1-control.js';
 import * as Viz2 from './viz2-attacks.js';
 import * as Viz3 from './viz3-pins.js';
-import * as Viz4 from './viz4-thoughts.js';
 import { POSITIONS, DEFAULT_FEN } from './positions.js';
 
 const VIZ = {
   viz1: Viz1,
   viz2: Viz2,
   viz3: Viz3,
-  viz4: Viz4,
 };
 
 const state = {
@@ -20,7 +18,6 @@ const state = {
     viz1: { ...Viz1.DEFAULTS },
     viz2: { ...Viz2.DEFAULTS },
     viz3: { ...Viz3.DEFAULTS },
-    viz4: { ...Viz4.DEFAULTS },
   },
 };
 

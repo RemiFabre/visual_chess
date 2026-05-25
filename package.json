@@ -1,7 +1,7 @@
 {
   "name": "visual_chess",
   "version": "1.0.0",
-  "description": "Prototyping richer visualizations for chess beginners — controlled squares, attack paths, pins, overloaded defenders.",
+  "description": "Prototyping richer visualizations for chess beginners, controlled squares, attack paths, pins, overloaded defenders.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

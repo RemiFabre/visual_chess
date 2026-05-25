@@ -1,5 +1,5 @@
 // Visualization 2: attack paths.
-// All arrows use the same uniform style — solid until the first collision, dotted
+// All arrows use the same uniform style, solid until the first collision, dotted
 // continuation past it for sliders (B/R/Q). Only knights stay curved (arc).
 
 import { parseFEN, pieceAttackVectors, fileOf, rankOf } from './chess-utils.js';
@@ -34,13 +34,13 @@ export function render(container, fen, controls) {
 function drawVector(layer, board, from, v, color, piece) {
   const center = squareCenter(from);
 
-  // Knights — curved arc to the destination, no continuation past.
+  // Knights, curved arc to the destination, no continuation past.
   if (v.type === 'jump') {
     const dest = squareCenter(v.to);
     drawArrow(layer, center.x, center.y, dest.x, dest.y, color, { curved: true, opacity: 0.85 });
     return;
   }
-  // Pawn captures & king moves — single-square solid hop, no continuation past.
+  // Pawn captures & king moves, single-square solid hop, no continuation past.
   if (v.type === 'pawn' || v.type === 'king') {
     const dest = squareCenter(v.to);
     const target = board[v.to];
@@ -48,7 +48,7 @@ function drawVector(layer, board, from, v, color, piece) {
     return;
   }
 
-  // Sliders — solid up to the first blocker, dotted continuation past.
+  // Sliders, solid up to the first blocker, dotted continuation past.
   const rayCenters = v.ray.map(squareCenter);
   const blockerIdx = v.blockedBy != null ? v.ray.indexOf(v.blockedBy) : v.ray.length - 1;
   const solidEnd = rayCenters[blockerIdx];

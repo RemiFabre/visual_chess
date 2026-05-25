@@ -1,100 +1,66 @@
-# Visual Chess — Prototype Status
+# Visual Chess, status
 
-This file is the single point of entry. Everything you'd want to look at is linked from here.
+The single place to look at what's done, what's broken, and what we're trying next.
 
 ## The idea
-Chess is a visual game, but standard boards expose almost none of the visual information beginners need to internalize: who controls what square, where attack lines run, which pieces are pinned, who is overloaded defending what. This repo prototypes four visualizations layered onto a standard board, with the goal of dropping them in front of r/chessbeginners and asking *"does seeing the board this way help?"*
+Chess is a visual game but a standard board hides almost everything a beginner is supposed to "see": who controls each square, where attack lines actually run, which pieces are pinned, which pieces are silently hanging. We're prototyping a few visualizations layered on a normal board to find out whether any of them genuinely help.
 
 ## How to view
+- Live: https://remifabre.github.io/visual_chess/
+- Local: `open index.html` from the repo root, no build step.
 
-**Locally** — clone the repo and open `index.html`:
-```bash
-git clone git@github.com:RemiFabre/visual_chess.git
-cd visual_chess
-open index.html
-```
-No build step. ES modules + cute custom sprites.
+The `*.github.io` URL is the Pages site; the `github.com/.../blob/main/index.html` URL is just GitHub's source viewer.
 
-**Live demo:** https://remifabre.github.io/visual_chess/
+## Visualizations
 
-> Note: that `*.github.io` URL is the Pages site. The `github.com/.../blob/main/index.html` URL is GitHub's source-code viewer and will just display the HTML as plain text — not the same thing.
+### 1. Controlled space
+Each side colors only its half of the square's border: white on the bottom half, black on the top. When both sides attack a square, the two halves meet face-to-face at the side edges. Border thickness grows with attacker count (capped at 4). Numbers sit on each side's half too: white's count near the bottom, black's near the top. A second mode hides the colors and shows just the digits.
 
-## Visualizations (all live, current state)
+![viz1, Italian middlegame](screenshots/viz1_1_italian-early-middlegame.png)
+![viz1, King's Indian wedge](screenshots/viz1_2_king-s-indian-wedge.png)
 
-| # | Name | Status | What it shows |
-|---|------|--------|---------------|
-| 1 | [Controlled space](#viz-1-controlled-space) | ✅ done | Heatmap of attacker counts. Split-square triangles for contested squares. |
-| 2 | [Attack paths](#viz-2-attack-paths) | ✅ done | Arrows for every attack vector; dotted continuation past the first collision for sliders; piece-specific stroke styles. |
-| 3 | [Pins & protection](#viz-3-pins--protection) | ✅ done | Ice block on pinned pieces (taller block = absolute pin against the king), green rings around defended pieces, red dashed rings + fade on hanging pieces. |
-| 4 | [Thought bubbles](#viz-4-thought-bubbles) | ✅ done | Each piece carries a comic bubble of what it's defending. Overloaded pieces get a red outline and a sweat drop. |
+### 2. Attack paths
+All arrows use the same uniform style. Solid up to the first piece in the way; dotted continuation past that piece showing the rest of the ray. Only knights are curved, since their move isn't a straight line. Filters for side and piece type to declutter the opening.
 
-### Viz 1: Controlled space
-- Each square colored by the side that attacks it. Orange = white, blue = black.
-- Intensity (4 steps) tracks the number of attackers, capped at 4.
-- Contested squares split into two triangles, each with its own intensity.
-- Optional numeric badges in opposing corners.
-- Best demo position: *King's Indian wedge* — white's central wedge is one obvious orange block.
+![viz2, Italian middlegame](screenshots/viz2_1_italian-early-middlegame.png)
 
-![viz1 italian](screenshots/viz1_1_italian-early-middlegame.png)
-![viz1 KID](screenshots/viz1_2_king-s-indian-wedge.png)
+### 3. Pins & protection
+Pinned pieces get an ice overlay. Ice height grows with the value differential of what's behind: a pawn pinned against a knight is just a thin sliver; a knight pinned against the king is the full block. Opacity stays low enough that the pinned piece is still readable underneath.
 
-### Viz 2: Attack paths
-- Arrows from every piece to every square it threatens.
-- For sliders (B/R/Q): solid line to the first collision, dotted continuation behind it (what's *behind* the blocker on the same ray).
-- Piece-specific styles so overlapping lines stay readable: knight arcs are curved, queen lines are striped, kings are short dashed.
-- Filter dropdowns for side and piece type.
+The pin line is dashed in the attacker's color (orange = white pinning, blue = black pinning) so the direction reads. Defended pieces get a green inset ring (thicker = more defenders). Hanging pieces (attacked and undefended) get a red dashed ring and the glyph fades.
 
-![viz2 italian](screenshots/viz2_1_italian-early-middlegame.png)
-
-### Viz 3: Pins & protection
-- **Ice blocks** sit on pinned pieces. A full ice cube = absolute pin (against the king). A half-block = relative pin (against a more valuable piece).
-- Faint dashed red line traces from the pinning attacker through the pinned piece to the piece "behind".
-- **Green rings** surround pieces that are defended (thicker ring = more defenders).
-- **Red dashed rings + 50% opacity** flag hanging pieces (attacked & undefended).
-- King is excluded — it isn't a "defender target" and shouldn't show as protected.
-
-![viz3 Légal pin](screenshots/viz3_3_l-gal-trap-pin-on-nf3.png)
-![viz3 absolute pin](screenshots/viz3_5_absolute-pin-knight-on-the-e-file.png)
-![viz3 hanging](screenshots/viz3_6_hanging-piece.png)
-
-### Viz 4: Thought bubbles
-- Each piece "thinks about" the friendly pieces it defends — shown inside a comic-style bubble next to it.
-- Bubbles grow with how much value is at stake.
-- A red outlined bubble + blue sweat drop = the piece is **overloaded** (defends multiple things, total value ≥ 4).
-- Mode selector to hide noise: *all defenders / 2+ defended (default) / overloaded only*.
-
-![viz4 overloaded queen](screenshots/viz4_7_overloaded-queen.png)
-![viz4 knight defends four](screenshots/viz4_8_knight-defends-four-pawns.png)
+![viz3, Légal pin](screenshots/viz3_3_l-gal-trap-pin-on-nf3.png)
+![viz3, absolute pin](screenshots/viz3_5_absolute-pin-knight-on-the-e-file.png)
+![viz3, hanging piece](screenshots/viz3_6_hanging-piece.png)
 
 ## Sprites
-Generated with OpenAI `gpt-image-1` (image gen v2) — kawaii pieces with little faces, picked deliberately to give the prototype a friendly, beginner-y vibe. 16 sprites total (12 pieces + 2 ice blocks + thought bubble + sweat drop).
+We generated a kawaii set with OpenAI `gpt-image-1` early on. They're still in `sprites/` because they're useful (the ice overlays for viz 3) but the board itself now uses the standard Lichess `cburnett` pieces, which are familiar enough that they don't add extra confusion. To regenerate or extend:
 
-To regenerate (e.g. after a prompt change):
 ```bash
 source .venv/bin/activate
 python3 scripts/generate_sprites.py            # only fills in missing files
 python3 scripts/generate_sprites.py --force    # regenerate everything
 python3 scripts/generate_sprites.py --piece N --color w   # one specific sprite
 ```
-After regenerating, the PNGs are 1024×1024 (~1.5 MB each). I run `sips -Z 384 sprites/*.png` to bring the bundle from 23 MB to 1.5 MB — visually identical at our 90 px squares.
+Originals are 1024x1024 (~1.5 MB each). `sips -Z 384 sprites/*.png` brings the bundle down to ~1.5 MB total, visually identical at our 90 px squares.
 
-## Curated demo positions
-See `js/positions.js`. Nine positions, intentionally varied:
-- Starting / Italian middlegame / King's Indian wedge — for the heatmap.
-- Légal trap & QGD Bg5 — relative pins.
-- Open e-file knight — absolute pin.
-- Hanging white knight — for the protection viz.
-- Overloaded queen & knight-defends-four — for thought bubbles.
+## Demo positions
+Listed in `js/positions.js`. Currently seven, each one chosen because at least one visualization reveals something on it:
 
-## Open questions for the user
-- (none right now — see *Future ideas* below)
+- Starting position
+- Italian, early middlegame
+- King's Indian wedge
+- Légal trap, pin on Nf3
+- QGD, Bg5 pin on Nf6
+- Absolute pin, knight on the e-file
+- Hanging white knight
 
-## Future ideas (not yet built — propose / discuss)
-- **Hover / click a piece to isolate its viz** — current viz2 in the opening position has too many arrows; click one piece to see only its lines.
-- **Diff against previous move** — fade old control map and overlay the new one so the player sees *what changed* after a move. Could be uniquely useful for tactical positions.
-- **"What if?" preview** — drag a piece to a hypothetical square and recompute the four visualizations live.
-- **Static Exchange Evaluation tint** — color the hanging-piece red ring brighter when the exchange actually loses material (vs. piece is defended but exchange still wins).
-- **Threat squares** — a fifth viz that highlights any square where the opponent has a winning capture available on their next move (i.e. squares where one of *my* pieces is in immediate, unsafe attack).
+## Ideas we haven't built yet
+- Click a piece to isolate just its arrows. The opening position is too busy for viz 2 otherwise.
+- Diff against the previous move: fade the old control map and overlay the new one to show *what changed*.
+- "What if?" mode: drag a piece to a hypothetical square and recompute the visualizations live.
+- Static-exchange tint on the hanging ring, so the red is brighter when the capture actually wins material vs. when it's just one defender short on paper.
+- A fifth viz for immediate threat squares: any square where the opponent has a profitable capture next move.
 
 ## Commit log
-Run `git log --oneline` for the full picture. Each milestone has its own commit and the repo is public — see https://github.com/RemiFabre/visual_chess.
+`git log --oneline` for the running picture. Public repo: https://github.com/RemiFabre/visual_chess.

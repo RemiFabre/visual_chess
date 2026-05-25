@@ -39,12 +39,12 @@ STYLE_BASE = (
 )
 
 PIECE_DESC = {
-    "K": "a king — tall body topped with a small crown bearing a cross",
-    "Q": "a queen — slightly shorter than the king, with a many-pointed crown",
-    "R": "a rook — a chunky castle tower with battlement notches",
-    "B": "a bishop — a slender piece with a tall pointed mitre that has a single slit",
-    "N": "a knight — a friendly horse head, mane visible, facing slightly left",
-    "P": "a pawn — small rounded body, a tiny head on a short neck",
+    "K": "a king, tall body topped with a small crown bearing a cross",
+    "Q": "a queen, slightly shorter than the king, with a many-pointed crown",
+    "R": "a rook, a chunky castle tower with battlement notches",
+    "B": "a bishop, a slender piece with a tall pointed mitre that has a single slit",
+    "N": "a knight, a friendly horse head, mane visible, facing slightly left",
+    "P": "a pawn, small rounded body, a tiny head on a short neck",
 }
 
 COLOR_DESC = {
@@ -79,7 +79,7 @@ ICE_HALF_PROMPT = (
 
 THOUGHT_BUBBLE_PROMPT = (
     "A blank cartoon thought bubble (cloud shape with three small connector circles trailing "
-    "from the bottom-left corner). White interior with a thick dark outline. Empty inside — "
+    "from the bottom-left corner). White interior with a thick dark outline. Empty inside, "
     "the inside will be filled in later. Slightly wider than tall, comic-book style. "
     "Fully transparent background outside the bubble shape."
 )
@@ -128,8 +128,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", choices=["piece", "ice", "thought", "all"], default="all")
     ap.add_argument("--force", action="store_true")
-    ap.add_argument("--piece", help="Single piece letter (KQRBNP) — implies --only piece")
-    ap.add_argument("--color", choices=["w", "b"], help="Single color — pairs with --piece")
+    ap.add_argument("--piece", help="Single piece letter (KQRBNP), implies --only piece")
+    ap.add_argument("--color", choices=["w", "b"], help="Single color, pairs with --piece")
     args = ap.parse_args()
 
     if not os.environ.get("OPENAI_API_KEY"):
@@ -157,7 +157,7 @@ def main() -> int:
             tasks.append(("sweat_drop", SWEAT_DROP_PROMPT))
 
     print(f"{len(tasks)} sprite(s) to consider; force={args.force}; out={OUT_DIR}")
-    # Parallelize up to N at a time — the API is happy with a few concurrent calls.
+    # Parallelize up to N at a time, the API is happy with a few concurrent calls.
     PAR = 4
     generated = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=PAR) as pool:

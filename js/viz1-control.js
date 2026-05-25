@@ -141,8 +141,8 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half, black the top — when a square is contested the two colors meet face-to-face at the side edges. Thicker border = more attackers (capped at 4).</div>
-    <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, no colors — for when the borders feel busy.</div>
+    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half, black the top, when a square is contested the two colors meet face-to-face at the side edges. Thicker border = more attackers (capped at 4).</div>
+    <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, no colors, for when the borders feel busy.</div>
     <div style="margin-top: 8px;">Numeric badges: white's count sits at the bottom of each square (white's side), black's count at the top.</div>
   `;
 }

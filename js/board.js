@@ -1,4 +1,4 @@
-// Board rendering — produces SVG. Visualizations attach overlays as <g> children before/after the piece layer.
+// Board rendering, produces SVG. Visualizations attach overlays as <g> children before/after the piece layer.
 
 import { sqName, sqIndex, fileOf, rankOf } from './chess-utils.js';
 
@@ -36,10 +36,9 @@ export function createBoardSVG() {
   const layerAttack = group('layer-attack');
   const layerPieces = group('layer-pieces');
   const layerPins = group('layer-pins');
-  const layerBubbles = group('layer-bubbles');
   const layerCoords = group('layer-coords');
 
-  svg.append(layerSquares, layerControl, layerAttack, layerPieces, layerPins, layerBubbles, layerCoords);
+  svg.append(layerSquares, layerControl, layerAttack, layerPieces, layerPins, layerCoords);
 
   // Squares
   for (let i = 0; i < 64; i++) {
@@ -68,7 +67,7 @@ export function createBoardSVG() {
     layerCoords.appendChild(t);
   }
 
-  return { svg, layers: { squares: layerSquares, control: layerControl, attack: layerAttack, pieces: layerPieces, pins: layerPins, bubbles: layerBubbles, coords: layerCoords } };
+  return { svg, layers: { squares: layerSquares, control: layerControl, attack: layerAttack, pieces: layerPieces, pins: layerPins, coords: layerCoords } };
 }
 
 // Board pieces use the cburnett (Lichess default) SVGs in vendor/lichess/cburnett/.

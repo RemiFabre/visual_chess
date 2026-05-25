@@ -21,7 +21,7 @@ export function render(container, fen, controls) {
   const { svg, layers } = createBoardSVG();
   container.replaceChildren(svg);
 
-  // Protection rings — drawn under the pieces.
+  // Protection rings, drawn under the pieces.
   for (let i = 0; i < 64; i++) {
     const p = board[i];
     if (!p || p.piece === 'K') continue;
@@ -72,7 +72,7 @@ function iceCoverage(pin, board) {
   const pinned = board[pin.pinnedTo == null ? 0 : 0]; // unused; we have pin.behindPiece
   const behindVal = pieceValue(pin.behindPiece);
   const pinnedVal = pieceValue(board[pin.pinLine[pin.pinLine.length - 1] - 999]?.piece || 'P'); // safe default
-  // The pinned piece is the one ICE goes on — find it from pinLine: it's the second-to-last
+  // The pinned piece is the one ICE goes on, find it from pinLine: it's the second-to-last
   // entry's piece. Simpler: read it from the global call site.
   // (We instead pass cover from drawIce directly to avoid this gymnastics.)
   return 0.45;
@@ -87,7 +87,7 @@ function drawIce(layer, idx, pin, board) {
   const pinnedVal = pieceValue(pinned.piece);
   const diff = behindVal - pinnedVal;
 
-  // Ice cover — capped so the piece remains visible.
+  // Ice cover, capped so the piece remains visible.
   // diff 1 → 0.22, 2 → 0.32, 4 → 0.44, 6+ → 0.52. Absolute (behind=K) → 0.55.
   let cover;
   if (isAbsolute) cover = 0.55;
@@ -109,7 +109,7 @@ function drawIce(layer, idx, pin, board) {
   });
   layer.appendChild(img);
 
-  // Severity badge — small label below the ice.
+  // Severity badge, small label below the ice.
   const label = isAbsolute ? 'PIN' : 'pin';
   const t = el('text', {
     x: x + SQ / 2, y: y + SQ - 4,
@@ -122,7 +122,7 @@ function drawIce(layer, idx, pin, board) {
 }
 
 function drawPinLine(layer, pin, board) {
-  // Color by the *attacker's* side — pins are directional.
+  // Color by the *attacker's* side, pins are directional.
   const attacker = board[pin.pinnedBy];
   const color = attacker.color === 'w' ? '#ff8a52' : '#52a0ff';
 
@@ -130,7 +130,7 @@ function drawPinLine(layer, pin, board) {
   const toXY = squareXY(pin.pinnedTo);
   const x1 = fromXY.x + SQ / 2, y1 = fromXY.y + SQ / 2;
   const x2 = toXY.x + SQ / 2, y2 = toXY.y + SQ / 2;
-  // Arrow pointing from attacker through to the "behind" piece — that's the direction of threat.
+  // Arrow pointing from attacker through to the "behind" piece, that's the direction of threat.
   const dx = x2 - x1, dy = y2 - y1;
   const len = Math.hypot(dx, dy) || 1;
   const ux = dx / len, uy = dy / len;
@@ -169,9 +169,9 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice — pinned piece. Height grows with how much is at stake behind it (light sliver = pawn pinned against a knight; tall block = piece pinned against the king).</div>
-    <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Green ring — piece is defended (thicker = more defenders).</div>
-    <div style="margin-top: 6px;"><span class="swatch" style="background: transparent; border: 2px dashed #ff6b6b"></span> Red dashed ring — hanging (attacked &amp; undefended). Glyph also fades.</div>
-    <div style="margin-top: 6px;">Pin line is dashed in the attacker's color — orange if a white piece is doing the pinning, blue if it's a black piece.</div>
+    <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Height grows with how much is at stake behind it (light sliver = pawn pinned against a knight; tall block = piece pinned against the king).</div>
+    <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Green ring, piece is defended (thicker = more defenders).</div>
+    <div style="margin-top: 6px;"><span class="swatch" style="background: transparent; border: 2px dashed #ff6b6b"></span> Red dashed ring, hanging (attacked &amp; undefended). Glyph also fades.</div>
+    <div style="margin-top: 6px;">Pin line is dashed in the attacker's color, orange if a white piece is doing the pinning, blue if it's a black piece.</div>
   `;
 }
