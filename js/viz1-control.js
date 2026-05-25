@@ -10,8 +10,10 @@
 import { parseFEN, computeControl } from './chess-utils.js';
 import { createBoardSVG, renderPieces, squareXY, SQ, el } from './board.js';
 
-const WHITE_RGB = [232, 152, 90];
-const BLACK_RGB = [90, 155, 232];
+// Hot pink for white, deep blue for black. Both sit far from the brown/beige board palette
+// so the visualization reads from across the room, and warm-vs-cool keeps the sides intuitive.
+const WHITE_RGB = [219, 39, 119]; // #db2777
+const BLACK_RGB = [30, 58, 138];  // #1e3a8a
 const MAX_INT = 4;
 
 function rgb([r, g, b], a = 1) { return `rgba(${r}, ${g}, ${b}, ${a})`; }
@@ -87,24 +89,26 @@ function drawTopHalf(layer, x, y, color, width) {
 }
 
 function drawCounts(layer, ctrl) {
-  // White's count sits near the bottom of the square (closer to white's side of the board).
-  // Black's count sits near the top (closer to black's side).
+  // Both counts horizontally centered: white near the bottom edge, black near the top.
+  // This keeps them off the file/rank coordinate labels in the corners and avoids the
+  // diagonal-opposition visual.
   for (let i = 0; i < 64; i++) {
     const wn = ctrl[i].w.length;
     const bn = ctrl[i].b.length;
     if (wn === 0 && bn === 0) continue;
     const { x, y } = squareXY(i);
-    if (wn > 0) addCount(layer, x + 8, y + SQ - 6, wn, WHITE_RGB, 'start'); // bottom-left
-    if (bn > 0) addCount(layer, x + SQ - 8, y + 18, bn, BLACK_RGB, 'end'); // top-right
+    const cx = x + SQ / 2;
+    if (wn > 0) addCount(layer, cx, y + SQ - 6, wn, WHITE_RGB);
+    if (bn > 0) addCount(layer, cx, y + 18, bn, BLACK_RGB);
   }
 }
 
-function addCount(layer, x, y, n, rgbArr, anchor) {
+function addCount(layer, x, y, n, rgbArr) {
   const t = el('text', {
     x, y,
     fill: rgb(rgbArr),
     stroke: 'rgba(0,0,0,0.85)', 'stroke-width': 3, 'paint-order': 'stroke',
-    'font-size': 16, 'font-weight': 800, 'text-anchor': anchor,
+    'font-size': 16, 'font-weight': 800, 'text-anchor': 'middle',
     'font-family': 'sans-serif',
   });
   t.textContent = String(n);
@@ -141,8 +145,8 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half, black the top, when a square is contested the two colors meet face-to-face at the side edges. Thicker border = more attackers (capped at 4).</div>
-    <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, no colors, for when the borders feel busy.</div>
-    <div style="margin-top: 8px;">Numeric badges: white's count sits at the bottom of each square (white's side), black's count at the top.</div>
+    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half (pink), black the top (blue); contested squares show both colors meeting at the side edges. Thicker border = more attackers (capped at 4).</div>
+    <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, for when the borders feel busy.</div>
+    <div style="margin-top: 8px;">White's count sits at the bottom of each square (white's side), black's count at the top, both centered to keep clear of the file/rank labels.</div>
   `;
 }

@@ -5,8 +5,8 @@
 import { parseFEN, pieceAttackVectors, fileOf, rankOf } from './chess-utils.js';
 import { createBoardSVG, renderPieces, squareCenter, SQ, el } from './board.js';
 
-const COLOR_W = '#ff8a52';
-const COLOR_B = '#52a0ff';
+const COLOR_W = '#db2777'; // hot pink for white
+const COLOR_B = '#1e3a8a'; // navy for black
 
 const WIDTH = 3.5;
 

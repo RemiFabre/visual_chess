@@ -124,7 +124,7 @@ function drawIce(layer, idx, pin, board) {
 function drawPinLine(layer, pin, board) {
   // Color by the *attacker's* side, pins are directional.
   const attacker = board[pin.pinnedBy];
-  const color = attacker.color === 'w' ? '#ff8a52' : '#52a0ff';
+  const color = attacker.color === 'w' ? '#db2777' : '#1e3a8a';
 
   const fromXY = squareXY(pin.pinnedBy);
   const toXY = squareXY(pin.pinnedTo);
@@ -172,6 +172,6 @@ export function legendHTML() {
     <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Height grows with how much is at stake behind it (light sliver = pawn pinned against a knight; tall block = piece pinned against the king).</div>
     <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Green ring, piece is defended (thicker = more defenders).</div>
     <div style="margin-top: 6px;"><span class="swatch" style="background: transparent; border: 2px dashed #ff6b6b"></span> Red dashed ring, hanging (attacked &amp; undefended). Glyph also fades.</div>
-    <div style="margin-top: 6px;">Pin line is dashed in the attacker's color, orange if a white piece is doing the pinning, blue if it's a black piece.</div>
+    <div style="margin-top: 6px;">Pin line is dashed in the attacker's color, pink if a white piece is doing the pinning, blue if it's a black piece.</div>
   `;
 }
