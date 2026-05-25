@@ -15,9 +15,9 @@ open index.html
 ```
 No build step. ES modules + cute custom sprites.
 
-**Live demo (GitHub Pages)** — needs to be enabled once on the repo:
-- GitHub → repo → Settings → Pages → Source: `Deploy from a branch`, Branch: `main`, Folder: `/ (root)`.
-- After enabling, the site will be at: https://remifabre.github.io/visual_chess/
+**Live demo:** https://remifabre.github.io/visual_chess/
+
+> Note: that `*.github.io` URL is the Pages site. The `github.com/.../blob/main/index.html` URL is GitHub's source-code viewer and will just display the HTML as plain text — not the same thing.
 
 ## Visualizations (all live, current state)
 
