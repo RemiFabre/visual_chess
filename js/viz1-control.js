@@ -31,9 +31,26 @@ export function render(container, fen, controls) {
   }));
 
   drawProportionalFills(layers.control, ctrl);
+  drawGrid(layers.control);
   if (controls.showCounts) drawCounts(layers.control, ctrl);
 
   renderPieces(layers.pieces, board);
+}
+
+// Thin grid lines on top of the fills, so adjacent solid-colour squares stay distinguishable.
+function drawGrid(layer) {
+  const stroke = 'rgba(60, 40, 25, 0.32)';
+  for (let i = 1; i < 8; i++) {
+    const v = i * SQ;
+    layer.appendChild(el('line', {
+      x1: v, y1: 0, x2: v, y2: 8 * SQ,
+      stroke, 'stroke-width': 1,
+    }));
+    layer.appendChild(el('line', {
+      x1: 0, y1: v, x2: 8 * SQ, y2: v,
+      stroke, 'stroke-width': 1,
+    }));
+  }
 }
 
 function drawProportionalFills(layer, ctrl) {
