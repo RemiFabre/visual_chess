@@ -1,20 +1,25 @@
-// Visualization 1: controlled-space heatmap.
-// Each square gets shaded by who controls it (one or both sides) and how strongly (attacker count).
+// Visualization 1: controlled-space, two modes.
+//   - "borders": square color unchanged; each square gets colored INSET borders.
+//     If only one side attacks → all 4 borders that color.
+//     If both attack → top+right = side with more attackers (or white if tied), bottom+left = the other side.
+//     Stroke width scales with that side's attacker count.
+//   - "numbers": no colors at all, just attacker-count digits in opposing corners.
+//
+// "Show counts" toggle adds numeric badges in the corners on top of the borders.
 
 import { parseFEN, computeControl } from './chess-utils.js';
 import { createBoardSVG, renderPieces, squareXY, SQ, el } from './board.js';
 
-const WHITE_COLOR = [232, 152, 90];   // matches --white-side
-const BLACK_COLOR = [90, 155, 232];   // matches --black-side
+const WHITE_RGB = [232, 152, 90];
+const BLACK_RGB = [90, 155, 232];
+const MAX_INT = 4;
 
-const MAX_INTENSITY = 4; // cap
+function rgb([r, g, b], a = 1) { return `rgba(${r}, ${g}, ${b}, ${a})`; }
 
-function rgba([r, g, b], a) { return `rgba(${r}, ${g}, ${b}, ${a})`; }
-function intensityToAlpha(count) {
-  // 0 -> 0, 1 -> 0.25, 2 -> 0.45, 3 -> 0.65, 4+ -> 0.85
-  if (count <= 0) return 0;
-  const c = Math.min(count, MAX_INTENSITY);
-  return 0.20 + (c - 1) * 0.20;
+function widthFor(n) {
+  // Maps attacker count → stroke width in px.
+  if (n <= 0) return 0;
+  return Math.min(2.5 + (n - 1) * 1.8, 2.5 + (MAX_INT - 1) * 1.8); // 2.5, 4.3, 6.1, 7.9
 }
 
 export function render(container, fen, controls) {
@@ -24,72 +29,118 @@ export function render(container, fen, controls) {
   const { svg, layers } = createBoardSVG();
   container.replaceChildren(svg);
 
-  // Heatmap rectangles
-  for (let i = 0; i < 64; i++) {
-    const { w, b } = ctrl[i];
-    const wn = w.length, bn = b.length;
-    const { x, y } = squareXY(i);
+  if (controls.mode === 'borders') {
+    drawBorders(layers.control, ctrl);
+  }
 
-    if (wn === 0 && bn === 0) continue;
-    if (wn > 0 && bn === 0) {
-      const rect = el('rect', { x, y, width: SQ, height: SQ, fill: rgba(WHITE_COLOR, intensityToAlpha(wn)) });
-      layers.control.appendChild(rect);
-    } else if (bn > 0 && wn === 0) {
-      const rect = el('rect', { x, y, width: SQ, height: SQ, fill: rgba(BLACK_COLOR, intensityToAlpha(bn)) });
-      layers.control.appendChild(rect);
-    } else {
-      // Contested square: triangle split — white top-left triangle, black bottom-right.
-      // Each gets its own intensity.
-      const half1 = el('polygon', {
-        points: `${x},${y} ${x + SQ},${y} ${x},${y + SQ}`,
-        fill: rgba(WHITE_COLOR, intensityToAlpha(wn)),
-      });
-      const half2 = el('polygon', {
-        points: `${x + SQ},${y} ${x + SQ},${y + SQ} ${x},${y + SQ}`,
-        fill: rgba(BLACK_COLOR, intensityToAlpha(bn)),
-      });
-      layers.control.appendChild(half1);
-      layers.control.appendChild(half2);
-    }
-
-    // Numeric counts (small) in opposing corners if both > 0, else center-ish
-    if (controls.showCounts) {
-      if (wn > 0) addCount(layers.control, x + 6, y + 16, wn, WHITE_COLOR);
-      if (bn > 0) addCount(layers.control, x + SQ - 6, y + SQ - 6, bn, BLACK_COLOR, 'end');
-    }
+  if (controls.showCounts) {
+    drawCounts(layers.control, ctrl);
   }
 
   renderPieces(layers.pieces, board);
 }
 
-function addCount(layer, x, y, n, rgb, anchor = 'start') {
+function drawBorders(layer, ctrl) {
+  for (let i = 0; i < 64; i++) {
+    const wn = ctrl[i].w.length;
+    const bn = ctrl[i].b.length;
+    if (wn === 0 && bn === 0) continue;
+    const { x, y } = squareXY(i);
+
+    if (wn > 0 && bn === 0) drawFullBorder(layer, x, y, WHITE_RGB, widthFor(wn));
+    else if (bn > 0 && wn === 0) drawFullBorder(layer, x, y, BLACK_RGB, widthFor(bn));
+    else drawSplitBorder(layer, x, y, wn, bn);
+  }
+}
+
+function drawFullBorder(layer, x, y, color, width) {
+  // Inset the rect by half-width so the stroke is fully inside the square.
+  const inset = width / 2 + 0.5;
+  const r = el('rect', {
+    x: x + inset, y: y + inset, width: SQ - 2 * inset, height: SQ - 2 * inset,
+    fill: 'none', stroke: rgb(color), 'stroke-width': width, 'stroke-linejoin': 'miter',
+  });
+  layer.appendChild(r);
+}
+
+function drawSplitBorder(layer, x, y, wn, bn) {
+  // Top + right = white, bottom + left = black.
+  // Each pair gets its own stroke width.
+  const wWidth = widthFor(wn);
+  const bWidth = widthFor(bn);
+  const wInset = wWidth / 2 + 0.5;
+  const bInset = bWidth / 2 + 0.5;
+
+  // Use polyline for each L-shape.
+  // Top + right (white):
+  const wPath = el('polyline', {
+    points: `${x + bInset},${y + wInset} ${x + SQ - wInset},${y + wInset} ${x + SQ - wInset},${y + SQ - bInset}`,
+    fill: 'none', stroke: rgb(WHITE_RGB), 'stroke-width': wWidth, 'stroke-linejoin': 'miter',
+  });
+  // Bottom + left (black):
+  const bPath = el('polyline', {
+    points: `${x + SQ - wInset},${y + SQ - bInset} ${x + bInset},${y + SQ - bInset} ${x + bInset},${y + wInset}`,
+    fill: 'none', stroke: rgb(BLACK_RGB), 'stroke-width': bWidth, 'stroke-linejoin': 'miter',
+  });
+  layer.appendChild(wPath);
+  layer.appendChild(bPath);
+}
+
+function drawCounts(layer, ctrl) {
+  for (let i = 0; i < 64; i++) {
+    const wn = ctrl[i].w.length;
+    const bn = ctrl[i].b.length;
+    if (wn === 0 && bn === 0) continue;
+    const { x, y } = squareXY(i);
+    if (wn > 0) addCount(layer, x + 8, y + 16, wn, WHITE_RGB, 'start');
+    if (bn > 0) addCount(layer, x + SQ - 8, y + SQ - 8, bn, BLACK_RGB, 'end');
+  }
+}
+
+function addCount(layer, x, y, n, rgbArr, anchor) {
   const t = el('text', {
-    x, y, fill: rgba(rgb, 1),
-    stroke: 'rgba(0,0,0,0.7)', 'stroke-width': 2.5, 'paint-order': 'stroke',
-    'font-size': 14, 'font-weight': 700, 'text-anchor': anchor,
+    x, y,
+    fill: rgb(rgbArr),
+    stroke: 'rgba(0,0,0,0.85)', 'stroke-width': 3, 'paint-order': 'stroke',
+    'font-size': 16, 'font-weight': 800, 'text-anchor': anchor,
     'font-family': 'sans-serif',
   });
   t.textContent = String(n);
   layer.appendChild(t);
 }
 
-export const DEFAULTS = { showCounts: true };
+export const DEFAULTS = { mode: 'borders', showCounts: true };
 export const NAME = 'Controlled space';
 export function buildControls(root, state, onChange) {
   root.innerHTML = '';
-  const label = document.createElement('label');
+
+  const mkRadio = (group, value, label) => {
+    const l = document.createElement('label');
+    const r = document.createElement('input');
+    r.type = 'radio'; r.name = group; r.value = value;
+    r.checked = state[group] === value;
+    r.addEventListener('change', () => { state[group] = value; onChange(); });
+    l.append(r, document.createTextNode(label));
+    return l;
+  };
+
+  const modeDiv = document.createElement('div');
+  modeDiv.style.cssText = 'display: flex; gap: 12px; flex-basis: 100%;';
+  modeDiv.append(mkRadio('mode', 'borders', 'Colored borders'), mkRadio('mode', 'numbers', 'Numbers only'));
+  root.append(modeDiv);
+
+  const cbLabel = document.createElement('label');
   const cb = document.createElement('input');
   cb.type = 'checkbox';
   cb.checked = state.showCounts;
   cb.addEventListener('change', () => { state.showCounts = cb.checked; onChange(); });
-  label.append(cb, document.createTextNode('Show attacker counts'));
-  root.appendChild(label);
+  cbLabel.append(cb, document.createTextNode('Show numeric counts'));
+  root.appendChild(cbLabel);
 }
 export function legendHTML() {
   return `
-    <div><span class="swatch" style="background: rgba(232,152,90,0.6)"></span>White controls (intensity = # attackers)</div>
-    <div><span class="swatch" style="background: rgba(90,155,232,0.6)"></span>Black controls</div>
-    <div><span class="swatch" style="background: linear-gradient(135deg, rgba(232,152,90,0.6) 50%, rgba(90,155,232,0.6) 50%)"></span>Contested (both sides attack)</div>
-    <div style="margin-top: 8px;">Counts cap at <code>4</code>. Numbers in corners = attacker count per side.</div>
+    <div><b>Borders mode:</b> orange = white controls, blue = black controls. Thicker border = more attackers (capped at 4). Contested squares get a split border — white on top+right, black on bottom+left.</div>
+    <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, no colors — for when the borders feel busy.</div>
+    <div style="margin-top: 8px;">Numeric badges in opposing corners always reflect each side's attacker count.</div>
   `;
 }
