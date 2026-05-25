@@ -83,7 +83,7 @@ function addCount(layer, x, y, n) {
 }
 
 export const DEFAULTS = { showCounts: true };
-export const NAME = 'Controlled space';
+export const NAME = 'Pressure';
 export function buildControls(root, state, onChange) {
   root.innerHTML = '';
   const label = document.createElement('label');

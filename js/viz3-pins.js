@@ -15,8 +15,19 @@ import { createBoardSVG, renderPieces, squareXY, SQ, el, group } from './board.j
 export function render(container, fen, controls) {
   const { board } = parseFEN(fen);
   const pins = computePins(board);
-  const { defenders } = computeDefendedMap(board);
+  const { defenders: rawDefenders } = computeDefendedMap(board);
   const ctrl = computeControl(board);
+
+  // A pinned defender can only move along its pin line. If the piece it is "defending" sits
+  // off that line, the defender cannot actually capture there without exposing its own king,
+  // so it is not a real defender. We filter those out before drawing rings.
+  const effectiveDefenders = rawDefenders.map((list, sq) =>
+    list.filter(defIdx => {
+      const pin = pins[defIdx];
+      if (!pin) return true;
+      return pin.pinLine.includes(sq);
+    })
+  );
 
   const { svg, layers } = createBoardSVG();
   container.replaceChildren(svg);
@@ -24,11 +35,11 @@ export function render(container, fen, controls) {
   // Protection rings, drawn under the pieces.
   // We split pawn defenders from piece defenders: pieces protected only by other pieces
   // (no pawn anchor) are deflectable. Render those with a dotted green ring instead of a solid
-  // one. The defender can be attacked / chased / pinned and the protected piece falls with it.
+  // one. The defender can be attacked, chased, or pinned and the protected piece falls with it.
   for (let i = 0; i < 64; i++) {
     const p = board[i];
     if (!p || p.piece === 'K') continue;
-    const friendly = defenders[i];
+    const friendly = effectiveDefenders[i];
     const friendlyCount = friendly.length;
     const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
     const isHanging = enemy > 0 && friendlyCount === 0;
@@ -56,7 +67,7 @@ export function render(container, fen, controls) {
   renderPieces(layers.pieces, board, {
     opacityFor: (i, p) => {
       if (p.piece === 'K') return 1;
-      const friendly = defenders[i].length;
+      const friendly = effectiveDefenders[i].length;
       const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
       // Undefended pieces look like ghosts; the red ring (added separately) tells us
       // whether they're also under attack. Two opacity levels so the difference between
@@ -144,7 +155,7 @@ function drawPinLine(layer, pin, board) {
 }
 
 export const DEFAULTS = { showPinLine: true };
-export const NAME = 'Pins & protection';
+export const NAME = 'Guards';
 export function buildControls(root, state, onChange) {
   root.innerHTML = '';
   const label = document.createElement('label');

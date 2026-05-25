@@ -142,7 +142,7 @@ function drawSlider(layer, board, from, color) {
 }
 
 export const DEFAULTS = { sideFilter: 'both', pieceFilter: 'all' };
-export const NAME = 'Attack paths';
+export const NAME = 'Sight';
 export function buildControls(root, state, onChange) {
   root.innerHTML = '';
   const sideLabel = document.createElement('label');
