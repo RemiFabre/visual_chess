@@ -71,8 +71,17 @@ export function createBoardSVG() {
   return { svg, layers: { squares: layerSquares, control: layerControl, attack: layerAttack, pieces: layerPieces, pins: layerPins, bubbles: layerBubbles, coords: layerCoords } };
 }
 
+// Global toggle: use the generated PNG sprites if true, else Unicode glyphs.
+// `availableSprites` is the set of `${color}${piece}` strings whose PNG exists.
+let useSprites = false;
+let availableSprites = new Set();
+
+export function setSpriteSupport(enabled, available) {
+  useSprites = !!enabled;
+  availableSprites = new Set(available || []);
+}
+
 export function renderPieces(layer, board, { exclude = new Set(), opacityFor = null } = {}) {
-  // Remove old pieces
   layer.replaceChildren();
   for (let i = 0; i < 64; i++) {
     const p = board[i];
@@ -81,20 +90,32 @@ export function renderPieces(layer, board, { exclude = new Set(), opacityFor = n
     const { x, y } = squareXY(i);
     const cx = x + SQ / 2;
     const cy = y + SQ / 2;
-    const glyph = PIECE_GLYPH[p.color][p.piece];
-    // Outlined glyph: draw a "stroke" copy underneath in opposite color
-    const strokeColor = p.color === 'w' ? '#222' : '#fff';
-    const fillColor = p.color === 'w' ? '#fff' : '#222';
     const op = opacityFor ? opacityFor(i, p) : 1;
     const g = group();
     g.setAttribute('data-idx', i);
     g.setAttribute('opacity', op);
-    const stroke = text(cx, cy, glyph, {
-      'font-size': SQ * 0.85, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-      fill: fillColor, stroke: strokeColor, 'stroke-width': SQ * 0.04, 'paint-order': 'stroke',
-      'font-family': '"Noto Sans Symbols 2", "DejaVu Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif',
-    });
-    g.appendChild(stroke);
+
+    const key = `${p.color}${p.piece}`;
+    if (useSprites && availableSprites.has(key)) {
+      // PNG sprite — slightly inset so it doesn't touch the square edges.
+      const pad = SQ * 0.06;
+      const img = el('image', {
+        x: x + pad, y: y + pad, width: SQ - 2 * pad, height: SQ - 2 * pad,
+        href: `sprites/piece_${key}.png`,
+        preserveAspectRatio: 'xMidYMid meet',
+      });
+      g.appendChild(img);
+    } else {
+      const glyph = PIECE_GLYPH[p.color][p.piece];
+      const strokeColor = p.color === 'w' ? '#222' : '#fff';
+      const fillColor = p.color === 'w' ? '#fff' : '#222';
+      const t = text(cx, cy, glyph, {
+        'font-size': SQ * 0.85, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+        fill: fillColor, stroke: strokeColor, 'stroke-width': SQ * 0.04, 'paint-order': 'stroke',
+        'font-family': '"Noto Sans Symbols 2", "DejaVu Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif',
+      });
+      g.appendChild(t);
+    }
     layer.appendChild(g);
   }
 }

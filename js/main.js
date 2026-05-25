@@ -5,6 +5,7 @@ import * as Viz2 from './viz2-attacks.js';
 import * as Viz3 from './viz3-pins.js';
 import * as Viz4 from './viz4-thoughts.js';
 import { POSITIONS, DEFAULT_FEN } from './positions.js';
+import { setSpriteSupport } from './board.js';
 
 const VIZ = {
   viz1: Viz1,
@@ -82,5 +83,21 @@ fenInput.addEventListener('change', () => {
   }
 });
 
+// Probe which sprite PNGs are actually present so we can switch to them automatically.
+async function probeSprites() {
+  const keys = [];
+  for (const color of ['w', 'b']) for (const piece of 'KQRBNP') keys.push(`${color}${piece}`);
+  const present = [];
+  await Promise.all(keys.map(async (k) => {
+    try {
+      const r = await fetch(`sprites/piece_${k}.png`, { method: 'HEAD' });
+      if (r.ok) present.push(k);
+    } catch (_) {}
+  }));
+  if (present.length > 0) setSpriteSupport(true, present);
+  rerender();
+}
+
 setFen(state.fen);
 setActiveViz('viz1');
+probeSprites();

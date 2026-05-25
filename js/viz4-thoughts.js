@@ -5,6 +5,22 @@
 import { parseFEN, computeDefendedMap, pieceValue } from './chess-utils.js';
 import { createBoardSVG, renderPieces, squareCenter, squareXY, SQ, el, group } from './board.js';
 
+// Sprite probing — viz4 needs to know which piece images exist so it can use them
+// inside the thought bubbles instead of Unicode glyphs.
+let SPRITES_AVAILABLE = new Set();
+async function probeBubbleSprites() {
+  if (SPRITES_AVAILABLE.size > 0) return;
+  const keys = [];
+  for (const c of ['w', 'b']) for (const pp of 'KQRBNP') keys.push(`${c}${pp}`);
+  await Promise.all(keys.map(async (k) => {
+    try {
+      const r = await fetch(`sprites/piece_${k}.png`, { method: 'HEAD' });
+      if (r.ok) SPRITES_AVAILABLE.add(k);
+    } catch (_) {}
+  }));
+}
+probeBubbleSprites();
+
 const GLYPH = {
   w: { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' },
   b: { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟' },
@@ -89,22 +105,36 @@ function drawBubble(layer, fromIdx, piece, defendedPieces, { overload, board }) 
     const dp = defendedPieces[k];
     const gx = bx + 14 + k * 22;
     const gy = by + h / 2;
-    const t = el('text', {
-      x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central',
-      'font-size': 24, fill: dp.color === 'w' ? '#fff' : '#222', stroke: dp.color === 'w' ? '#222' : '#fff',
-      'stroke-width': 1.5, 'paint-order': 'stroke',
-      'font-family': '"Noto Sans Symbols 2", "DejaVu Sans", "Segoe UI Symbol", sans-serif',
-    });
-    t.textContent = GLYPH[dp.color][dp.piece];
-    g.appendChild(t);
+    const key = `${dp.color}${dp.piece}`;
+    if (SPRITES_AVAILABLE.has(key)) {
+      const size = 28;
+      const img = el('image', {
+        x: gx - size / 2, y: gy - size / 2, width: size, height: size,
+        href: `sprites/piece_${key}.png`,
+        preserveAspectRatio: 'xMidYMid meet',
+      });
+      g.appendChild(img);
+    } else {
+      const t = el('text', {
+        x: gx, y: gy, 'text-anchor': 'middle', 'dominant-baseline': 'central',
+        'font-size': 24, fill: dp.color === 'w' ? '#fff' : '#222', stroke: dp.color === 'w' ? '#222' : '#fff',
+        'stroke-width': 1.5, 'paint-order': 'stroke',
+        'font-family': '"Noto Sans Symbols 2", "DejaVu Sans", "Segoe UI Symbol", sans-serif',
+      });
+      t.textContent = GLYPH[dp.color][dp.piece];
+      g.appendChild(t);
+    }
   }
 
-  // Overloaded — add a sweat drop emoji-like shape.
+  // Overloaded — drop a stylized sweat drop sprite next to the bubble.
   if (overload) {
-    const sx = bx + w - 4, sy = by - 4;
-    const drop = el('path', {
-      d: `M ${sx} ${sy} q -6 8 -2 14 q 6 4 8 -2 q 0 -8 -6 -12 Z`,
-      fill: '#4aa6e8', stroke: '#1565a8', 'stroke-width': 1,
+    const dropSize = 22;
+    const dx = bx + w - dropSize * 0.4;
+    const dy = by - dropSize * 0.4;
+    const drop = el('image', {
+      x: dx, y: dy, width: dropSize, height: dropSize,
+      href: 'sprites/sweat_drop.png',
+      preserveAspectRatio: 'xMidYMid meet',
     });
     g.appendChild(drop);
   }

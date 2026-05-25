@@ -65,52 +65,30 @@ export function render(container, fen, controls) {
 
 function drawIce(layer, idx, pin) {
   const { x, y } = squareXY(idx);
-  // Cover proportion based on severity. Absolute = ~70% covered. Relative = ~40%.
-  const cover = pin.severity === 'absolute' ? 0.72 : 0.45;
-  const iceHeight = SQ * cover;
+  const isAbsolute = pin.severity === 'absolute';
 
-  // Ice block: layered translucent shapes with jagged top.
+  // Use PNG sprite if present (probed lazily), else fall back to drawn shapes.
+  const spriteName = isAbsolute ? 'ice_full' : 'ice_half';
   const g = group();
 
-  // Base block
-  const baseY = y + SQ - iceHeight;
-  const base = el('rect', {
-    x: x + 4, y: baseY, width: SQ - 8, height: iceHeight - 4,
-    fill: 'rgba(140, 220, 255, 0.55)', stroke: 'rgba(200, 240, 255, 0.9)', 'stroke-width': 2, rx: 4,
+  // Ice sits over the piece — covering ~all of the square for absolute, ~lower half for relative.
+  const cover = isAbsolute ? 0.92 : 0.55;
+  const iceH = SQ * cover;
+  const iceY = y + SQ - iceH - 2;
+  const img = el('image', {
+    x: x + 2, y: iceY, width: SQ - 4, height: iceH,
+    href: `sprites/${spriteName}.png`,
+    preserveAspectRatio: 'xMidYMid slice',
+    opacity: 0.85,
   });
-  g.appendChild(base);
+  g.appendChild(img);
 
-  // Jagged top — small triangles
-  const teeth = 6;
-  const tw = (SQ - 8) / teeth;
-  const points = [];
-  points.push(`${x + 4},${baseY}`);
-  for (let k = 0; k < teeth; k++) {
-    const tx = x + 4 + k * tw;
-    const peakY = baseY - (8 + (k % 2) * 6);
-    points.push(`${tx + tw / 2},${peakY}`);
-    points.push(`${tx + tw},${baseY}`);
-  }
-  const jagged = el('polygon', {
-    points: points.join(' '),
-    fill: 'rgba(180, 230, 255, 0.7)', stroke: 'rgba(220, 245, 255, 1)', 'stroke-width': 1.5,
-  });
-  g.appendChild(jagged);
-
-  // Sparkle accents
-  for (let s = 0; s < 3; s++) {
-    const sx = x + 12 + s * (SQ / 4);
-    const sy = baseY + 14 + (s % 2) * 18;
-    const sparkle = el('circle', { cx: sx, cy: sy, r: 2, fill: 'rgba(255,255,255,0.9)' });
-    g.appendChild(sparkle);
-  }
-
-  // Severity badge
-  const label = pin.severity === 'absolute' ? 'PIN' : 'pin';
+  // Severity badge in the corner
+  const label = isAbsolute ? 'PIN' : 'pin';
   const t = el('text', {
     x: x + SQ / 2, y: y + SQ - 6,
-    'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700,
-    fill: '#0a3852', stroke: 'rgba(255,255,255,0.9)', 'stroke-width': 2, 'paint-order': 'stroke',
+    'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700,
+    fill: '#0a3852', stroke: 'rgba(255,255,255,0.95)', 'stroke-width': 2.5, 'paint-order': 'stroke',
     'font-family': 'sans-serif',
   });
   t.textContent = label;
