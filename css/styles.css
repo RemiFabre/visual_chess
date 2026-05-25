@@ -148,3 +148,50 @@ header.site-header p {
 }
 .controls input[type=range] { width: 100px; }
 .controls input[type=checkbox] { accent-color: var(--accent); }
+.controls button {
+  background: #1a1a1a;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.controls button:hover { border-color: var(--accent); }
+
+.overlay-toggles { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.overlay-toggle {
+  background: #1a1a1a;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  flex: 1;
+  text-align: center;
+}
+.overlay-toggle:hover { border-color: var(--accent); }
+.overlay-toggle.active {
+  background: rgba(255, 122, 89, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.move-list {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px;
+  color: var(--fg);
+}
+.move-list .move-num { color: var(--muted); }
+.move-list div { padding: 1px 0; }
+
+.board-area .board { touch-action: none; cursor: grab; }
+.board-area .board:active { cursor: grabbing; }

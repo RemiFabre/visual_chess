@@ -3,30 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visual Chess, Prototype</title>
+  <title>Visual Chess</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div class="wrap">
     <header class="site-header">
       <h1>Visual Chess</h1>
-      <p>Layered visualizations for chess beginners. <a href="STATUS.md" style="color: var(--accent);">Project status &rarr;</a></p>
+      <p>A playable board with toggle-able overlays. Pick up any piece to see legal moves. Pick up a knight to see its L-pattern reach as you drag.</p>
     </header>
 
-    <nav class="tabs" id="tabs">
-      <button class="tab active" data-viz="viz1">Pressure</button>
-      <button class="tab" data-viz="viz2">Sight</button>
-      <button class="tab" data-viz="viz3">Guards</button>
-      <button class="tab" data-viz="viz4">Knight reach</button>
-      <button class="tab" data-viz="viz5">Fork patterns</button>
-    </nav>
-
     <div class="layout">
-      <div class="board-area" id="board-area">
-        <!-- board SVG injected here -->
-      </div>
+      <div class="board-area" id="board-area"></div>
 
       <aside class="sidebar">
+        <div class="card">
+          <h2>Overlays</h2>
+          <div class="overlay-toggles">
+            <button class="overlay-toggle" data-overlay="pressure">Pressure</button>
+            <button class="overlay-toggle" data-overlay="sight">Sight</button>
+            <button class="overlay-toggle" data-overlay="guards">Guards</button>
+          </div>
+          <div class="legend" id="status">White to move.</div>
+        </div>
+
+        <div class="card">
+          <h2>Game</h2>
+          <div class="controls">
+            <button id="new-game">New game</button>
+            <button id="undo">Undo</button>
+            <button id="flip">Flip board</button>
+          </div>
+        </div>
+
         <div class="card">
           <h2>Position</h2>
           <div class="position-list" id="position-list"></div>
@@ -37,14 +46,9 @@
           <input type="text" class="fen-input" id="fen-input" />
         </div>
 
-        <div class="card" id="viz-controls">
-          <h2>Controls</h2>
-          <div class="controls" id="controls-body"></div>
-        </div>
-
         <div class="card">
-          <h2>Legend</h2>
-          <div class="legend" id="legend"></div>
+          <h2>Moves</h2>
+          <div class="move-list" id="move-list"></div>
         </div>
       </aside>
     </div>
