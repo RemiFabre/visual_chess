@@ -59,15 +59,16 @@ export function createBoard(orientation = 'w') {
     sight:    group('layer-sight'),
     guards:   group('layer-guards'),
     knight:   group('layer-knight'),
+    hints:    group('layer-hints'),
     pieces:   group('layer-pieces'),
     ice:      group('layer-ice'),
-    drag:     group('layer-drag'),
+    ghost:    group('layer-ghost'),
     coords:   group('layer-coords'),
   };
 
   svg.append(
     layers.squares, layers.pressure, layers.sight, layers.guards,
-    layers.knight, layers.pieces, layers.ice, layers.drag, layers.coords,
+    layers.knight, layers.hints, layers.pieces, layers.ice, layers.ghost, layers.coords,
   );
 
   drawBoardSquares(layers.squares, orientation);

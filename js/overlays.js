@@ -367,15 +367,15 @@ export function applyKnightReach({ layers, orientation }, fromIdx, color = 'w') 
 // === MOVE HINTS (legal-move dots) ===========================================
 // Not strictly an overlay; called from main.js when a piece is picked up.
 
-export function clearHints({ layers }) { layers.drag.replaceChildren(); }
+export function clearHints({ layers }) { layers.hints.replaceChildren(); }
 
 export function drawHints({ layers, orientation }, fromSquareName, moves) {
-  layers.drag.replaceChildren();
+  layers.hints.replaceChildren();
   // Highlight the source square.
   const fromIdx = sqToIdx(fromSquareName);
   if (fromIdx >= 0) {
     const { x, y } = squareXY(fromIdx, orientation);
-    layers.drag.appendChild(el('rect', {
+    layers.hints.appendChild(el('rect', {
       x, y, width: SQ, height: SQ,
       fill: '#fde68a', opacity: 0.55,
     }));
@@ -386,13 +386,13 @@ export function drawHints({ layers, orientation }, fromSquareName, moves) {
     const { x, y } = squareXY(idx, orientation);
     const c = { x: x + SQ / 2, y: y + SQ / 2 };
     if (m.captured) {
-      layers.drag.appendChild(el('rect', {
+      layers.hints.appendChild(el('rect', {
         x: x + 3, y: y + 3, width: SQ - 6, height: SQ - 6,
         fill: 'none', stroke: '#dc2626', 'stroke-width': 4, rx: 4, ry: 4,
         opacity: 0.85,
       }));
     } else {
-      layers.drag.appendChild(el('circle', {
+      layers.hints.appendChild(el('circle', {
         cx: c.x, cy: c.y, r: SQ * 0.16,
         fill: 'rgba(60, 40, 25, 0.4)',
       }));
