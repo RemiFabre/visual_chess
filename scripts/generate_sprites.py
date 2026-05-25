@@ -62,22 +62,25 @@ def piece_prompt(piece: str, color: str) -> str:
     )
 
 ICE_PROMPT = (
-    "A pile of jagged crystalline ice shards stacked together, not a single block. Irregular "
-    "broken edges everywhere, no straight lines anywhere. Translucent pale-blue ice with bright "
-    "white frost highlights, a few trapped bubbles, sparkles catching the light. The pile is "
-    "roughly hill-shaped, wider at the bottom and tapering toward the top into sharp uneven peaks. "
-    "Designed to overlay a chess piece to make it look frozen in place. Fully transparent "
-    "background, no scene around it. Cute kawaii illustration style with bold dark outlines, "
-    "centered in the frame."
+    "A wide pile of sharp jagged ice spikes filling the entire frame edge to edge. Aggressive "
+    "and dangerous, multiple tall pointed peaks rising upward across the full width. Translucent "
+    "pale-blue crystalline ice with bright white frost highlights on every facet, a few trapped "
+    "bubbles, light sparkles. No straight lines anywhere, all edges sharp and crystalline. The "
+    "base spans the full width of the frame, dramatic spikes reach upward toward the top. "
+    "No face, no eyes, no mouth, no smile, no character of any kind, purely abstract ice "
+    "formation. Fully transparent background outside the ice silhouette. Bold dark outlines, "
+    "illustrated chess-sprite art style."
 )
 
 ICE_HALF_PROMPT = (
-    "A single small jagged ice shard, irregular crystalline shape like a chunk broken off a "
-    "larger ice formation. Translucent pale-blue with bright white frost highlights and a couple "
-    "of trapped bubbles. Sharp uneven edges on every side, no straight lines anywhere. Sized like "
-    "a small wedge or fragment, low and compact. Designed to overlay just the lower portion of a "
-    "chess piece. Fully transparent background. Cute kawaii illustration style with bold dark "
-    "outlines, centered in the frame."
+    "A wide low cluster of jagged ice spikes filling the frame width edge to edge. Exact same "
+    "crystalline visual style as a taller ice pile, just shorter and less menacing. Multiple "
+    "small pointed peaks spread across the width, gentle uneven silhouette rather than dramatic "
+    "spikes. Translucent pale-blue ice with bright white frost highlights along every facet, a "
+    "couple of trapped bubbles, light sparkles. No straight lines anywhere, all edges sharp and "
+    "crystalline. No face, no eyes, no mouth, no smile, no character of any kind, purely abstract "
+    "ice formation. Fully transparent background outside the ice silhouette. Bold dark outlines, "
+    "same illustration style as the taller pile."
 )
 
 THOUGHT_BUBBLE_PROMPT = (
@@ -114,14 +117,14 @@ def save(path: pathlib.Path, data: bytes) -> None:
     print(f"  -> wrote {path.name}  ({kb:.0f} KB)")
 
 
-def generate_one(client: OpenAI, name: str, prompt: str, force: bool) -> bool:
+def generate_one(client: OpenAI, name: str, prompt: str, force: bool, size: str = "1024x1024") -> bool:
     path = OUT_DIR / f"{name}.png"
     if path.exists() and not force:
         print(f"  -- skip (exists): {name}")
         return False
-    print(f"  .. generating: {name}")
+    print(f"  .. generating: {name}  ({size})")
     t0 = time.time()
-    data = call_openai(client, prompt)
+    data = call_openai(client, prompt, size)
     save(path, data)
     print(f"     ({time.time() - t0:.1f}s)")
     return True
@@ -141,30 +144,31 @@ def main() -> int:
 
     client = OpenAI()
 
-    tasks: list[tuple[str, str]] = []
+    tasks: list[tuple[str, str, str]] = []  # (name, prompt, size)
 
     if args.piece:
         colors = [args.color] if args.color else ["w", "b"]
         for c in colors:
-            tasks.append((f"piece_{c}{args.piece}", piece_prompt(args.piece, c)))
+            tasks.append((f"piece_{c}{args.piece}", piece_prompt(args.piece, c), "1024x1024"))
     else:
         if args.only in ("piece", "all"):
             for color in ("w", "b"):
                 for piece in "KQRBNP":
-                    tasks.append((f"piece_{color}{piece}", piece_prompt(piece, color)))
+                    tasks.append((f"piece_{color}{piece}", piece_prompt(piece, color), "1024x1024"))
         if args.only in ("ice", "all"):
-            tasks.append(("ice_full", ICE_PROMPT))
-            tasks.append(("ice_half", ICE_HALF_PROMPT))
+            # Landscape canvas, the ice spans the full width and stays low.
+            tasks.append(("ice_full", ICE_PROMPT, "1536x1024"))
+            tasks.append(("ice_half", ICE_HALF_PROMPT, "1536x1024"))
         if args.only in ("thought", "all"):
-            tasks.append(("thought_bubble", THOUGHT_BUBBLE_PROMPT))
-            tasks.append(("sweat_drop", SWEAT_DROP_PROMPT))
+            tasks.append(("thought_bubble", THOUGHT_BUBBLE_PROMPT, "1024x1024"))
+            tasks.append(("sweat_drop", SWEAT_DROP_PROMPT, "1024x1024"))
 
     print(f"{len(tasks)} sprite(s) to consider; force={args.force}; out={OUT_DIR}")
     # Parallelize up to N at a time, the API is happy with a few concurrent calls.
     PAR = 4
     generated = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=PAR) as pool:
-        futs = {pool.submit(generate_one, client, name, prompt, args.force): name for name, prompt in tasks}
+        futs = {pool.submit(generate_one, client, name, prompt, args.force, size): name for name, prompt, size in tasks}
         for f in concurrent.futures.as_completed(futs):
             try:
                 if f.result():

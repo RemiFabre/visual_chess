@@ -53,7 +53,11 @@ export function render(container, fen, controls) {
       if (p.piece === 'K') return 1;
       const friendly = defenders[i].length;
       const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
-      if (enemy > 0 && friendly === 0) return 0.5;
+      // Undefended pieces look like ghosts; the red ring (added separately) tells us
+      // whether they're also under attack. Two opacity levels so the difference between
+      // "just unsupported" and "actually hanging" still reads at a glance.
+      if (enemy > 0 && friendly === 0) return 0.45; // hanging
+      if (friendly === 0) return 0.72;              // unsupported, not yet attacked
       return 1;
     },
   });
@@ -81,19 +85,19 @@ function iceCoverage(pin, board) {
 function drawIce(layer, idx, pin, board) {
   const { x, y } = squareXY(idx);
 
-  // Two flavours: big ice when the pin protects the king or the queen (the high-stakes pins),
-  // small ice otherwise. Cleaner mental model than the value-differential ladder we had before.
+  // Big ice when the pin protects the king or the queen, small ice otherwise. Both sprites
+  // share the same crystalline style; only the height differs (big = aggressive tall spikes,
+  // small = low cluster). Source is landscape 3:2, displayed across most of the cell width.
   const isBigStake = pin.behindPiece === 'K' || pin.behindPiece === 'Q';
   const spriteName = isBigStake ? 'ice_full' : 'ice_half';
 
-  // The sprites are roughly square; display them as squares so the new jagged silhouette reads
-  // properly. Anchored at the bottom of the cell so the ice looks like it's growing from the floor.
-  const size = SQ * (isBigStake ? 0.55 : 0.38);
-  const iceX = x + (SQ - size) / 2;
-  const iceY = y + SQ - size - 2;
+  const iceW = SQ * (isBigStake ? 0.96 : 0.78);
+  const iceH = iceW * (1024 / 1536); // sprite aspect, keeps shape
+  const iceX = x + (SQ - iceW) / 2;
+  const iceY = y + SQ - iceH - 1;
 
   layer.appendChild(el('image', {
-    x: iceX, y: iceY, width: size, height: size,
+    x: iceX, y: iceY, width: iceW, height: iceH,
     href: `sprites/${spriteName}.png`,
     preserveAspectRatio: 'xMidYMid meet',
     opacity: 0.95,
@@ -148,9 +152,9 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Big pile = pinned against the king or the queen (the high-stakes pins). Small shard = pinned against a less valuable piece.</div>
+    <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Big tall spikes = pinned against the king or the queen (high stakes). Small low cluster = pinned against a less valuable piece.</div>
     <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Green ring, piece is defended (thicker = more defenders).</div>
-    <div style="margin-top: 6px;"><span class="swatch" style="background: transparent; border: 2px dashed #ff6b6b"></span> Red dashed ring, hanging (attacked &amp; undefended). Glyph also fades.</div>
+    <div style="margin-top: 6px;">Undefended pieces fade to a ghostly outline. If the piece is <i>also</i> attacked, a red dashed ring is drawn around it (hanging) and the fade is heavier.</div>
     <div style="margin-top: 6px;">Pin line is dashed in the attacker's color, pink if a white piece is doing the pinning, blue if it's a black piece.</div>
   `;
 }
