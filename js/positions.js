@@ -88,6 +88,11 @@ export const POSITIONS = [
     fen: 'r2qk2r/ppp2ppp/2np1n2/2b1p3/2B1P1b1/2NP1N2/PPP2PPP/R1BQ1RK1 w kq - 1 8',
     notes: 'Pressure baseline. Both sides have developed actively (Bc4 vs Bc5, Bg4 pinning Nf3). The Pressure overlay reads as balanced central tension, no side dominates.',
   },
+  {
+    name: 'Italian Game opening',
+    fen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+    notes: 'Sight baseline. The classic Italian: e4 vs e5 pawns face each other, both bishops point at f-pawns, both knights developed. Great showcase for the attack-line overlay because pieces already point at things.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
