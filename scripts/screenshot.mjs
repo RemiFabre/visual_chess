@@ -1,5 +1,5 @@
 // Take screenshots of each visualization × curated position.
-// Usage:  node scripts/screenshot.mjs [viz1|viz2|viz3|viz4|all] [posIndex|all]
+// Usage:  node scripts/screenshot.mjs [viz1|viz2|viz3|viz4|viz5|all] [posIndex|all]
 
 import puppeteer from 'puppeteer';
 import http from 'http';
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-const VIZ_NAMES = ['viz1', 'viz2', 'viz3', 'viz4'];
+const VIZ_NAMES = ['viz1', 'viz2', 'viz3', 'viz4', 'viz5'];
 
 // Tiny static file server so file:// + ESM works reliably.
 function serve(dir, port) {
