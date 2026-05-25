@@ -22,29 +22,34 @@ export function render(container, fen, controls) {
   container.replaceChildren(svg);
 
   // Protection rings, drawn under the pieces.
+  // We split pawn defenders from piece defenders: pieces protected only by other pieces
+  // (no pawn anchor) are deflectable. Render those with a dotted green ring instead of a solid
+  // one. The defender can be attacked / chased / pinned and the protected piece falls with it.
   for (let i = 0; i < 64; i++) {
     const p = board[i];
     if (!p || p.piece === 'K') continue;
-    const friendly = defenders[i].length;
+    const friendly = defenders[i];
+    const friendlyCount = friendly.length;
     const enemy = ctrl[i][p.color === 'w' ? 'b' : 'w'].length;
-    const isHanging = enemy > 0 && friendly === 0;
+    const isHanging = enemy > 0 && friendlyCount === 0;
+    const hasPawnAnchor = friendly.some(j => board[j].piece === 'P');
 
     const { x, y } = squareXY(i);
-    if (friendly > 0 && !isHanging) {
-      const ring = el('rect', {
+    if (friendlyCount > 0 && !isHanging) {
+      const attrs = {
         x: x + 4, y: y + 4, width: SQ - 8, height: SQ - 8,
         fill: 'none', rx: 8, ry: 8,
-        stroke: '#7ee787', 'stroke-width': Math.min(3 + friendly, 8),
+        stroke: '#7ee787', 'stroke-width': Math.min(3 + friendlyCount, 8),
         opacity: 0.75,
-      });
-      layers.control.appendChild(ring);
+      };
+      if (!hasPawnAnchor) attrs['stroke-dasharray'] = '4 4';
+      layers.control.appendChild(el('rect', attrs));
     } else if (isHanging) {
-      const ring = el('rect', {
+      layers.control.appendChild(el('rect', {
         x: x + 4, y: y + 4, width: SQ - 8, height: SQ - 8,
         fill: 'none', rx: 8, ry: 8,
         stroke: '#ff6b6b', 'stroke-width': 3, 'stroke-dasharray': '5 4', opacity: 0.9,
-      });
-      layers.control.appendChild(ring);
+      }));
     }
   }
 
@@ -153,7 +158,8 @@ export function buildControls(root, state, onChange) {
 export function legendHTML() {
   return `
     <div><span class="swatch" style="background: rgba(140,220,255,0.6); border: 1px solid #cdf"></span> Ice, pinned piece. Big tall spikes = pinned against the king or the queen (high stakes). Small low cluster = pinned against a less valuable piece.</div>
-    <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Green ring, piece is defended (thicker = more defenders).</div>
+    <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px solid #7ee787"></span> Solid green ring, piece is defended <i>and at least one defender is a pawn</i>. Pawn-anchored defenders are sticky.</div>
+    <div style="margin-top: 6px;"><span class="swatch" style="background: rgba(126,231,135,0.4); border: 2px dashed #7ee787"></span> Dotted green ring, piece is defended <i>only by other pieces</i> (no pawn anchor). This is a <b>deflectable</b> piece, attack the defender and the original piece falls with it.</div>
     <div style="margin-top: 6px;">Undefended pieces fade to a ghostly outline. If the piece is <i>also</i> attacked, a red dashed ring is drawn around it (hanging) and the fade is heavier.</div>
     <div style="margin-top: 6px;">Pin line is dashed in the attacker's color, pink if a white piece is doing the pinning, blue if it's a black piece.</div>
   `;

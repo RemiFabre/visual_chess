@@ -58,6 +58,11 @@ export const POSITIONS = [
     fen: '8/8/8/3N4/8/8/8/8 w - - 0 1',
     notes: 'Knight reach theme, isolated. Single white knight on d5 on an otherwise empty board, the reach map fills almost everything inside 3 moves.',
   },
+  {
+    name: 'Deflection, the weak defender',
+    fen: '5rk1/1b3ppp/2n1p3/3pN3/3P4/4P3/P1P2PPP/1R4K1 w - - 0 1',
+    notes: 'Deflection theme. Nc6 is defended only by Bb7 (dotted green ring, no pawn anchor). Bb7 itself has no defender, and the b-file is clear. White plays Rxb7!, then Nxc6, winning bishop + knight for free. Naroditsky calls piece-only-defended pieces "deflectable".',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
