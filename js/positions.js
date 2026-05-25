@@ -93,6 +93,11 @@ export const POSITIONS = [
     fen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
     notes: 'Sight baseline. The classic Italian: e4 vs e5 pawns face each other, both bishops point at f-pawns, both knights developed. Great showcase for the attack-line overlay because pieces already point at things.',
   },
+  {
+    name: 'Simple pawn fork',
+    fen: '7k/8/8/4b1n1/8/8/5PPP/5R1K w - - 0 1',
+    notes: 'Sight puzzle. White plays f4 forking the bishop on e5 and the knight on g5. The pawn stub viz shows exactly which two squares a pawn on f4 would attack.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
