@@ -83,6 +83,11 @@ export const POSITIONS = [
     fen: 'r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 w - - 1 9',
     notes: 'Space theme. The classic Mar del Plata wedge: white locks the centre with d5 and chases the queenside, black answers with kingside pawns. The Pressure overlay reads as one clear queenside-vs-kingside split.',
   },
+  {
+    name: 'Italian middlegame, both bishops out',
+    fen: 'r2qk2r/ppp2ppp/2np1n2/2b1p3/2B1P1b1/2NP1N2/PPP2PPP/R1BQ1RK1 w kq - 1 8',
+    notes: 'Pressure baseline. Both sides have developed actively (Bc4 vs Bc5, Bg4 pinning Nf3). The Pressure overlay reads as balanced central tension, no side dominates.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;

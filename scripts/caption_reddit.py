@@ -172,6 +172,9 @@ def main() -> int:
         return 1
     n = 0
     for slide in slides:
+        if not slide.src:
+            print(f"  -- skip (no src): {slide.out_name}")
+            continue
         try:
             path = caption(slide)
             kb = path.stat().st_size / 1024
