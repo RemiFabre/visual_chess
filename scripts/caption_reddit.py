@@ -53,10 +53,10 @@ IMAGES: list[Slide] = [
     ),
     Slide(
         "03-overlay3-deflection.png",
-        "viz3_11_deflection-the-weak-defender.png",
-        "Overlay 3 · Deflection",
-        "Nc6 wears a dotted green ring: defended only by Bb7, no pawn anchor. Bb7 itself is hanging (red ring). White plays Rxb7! and then Nxc6 wins the knight too.",
-        "5rk1/1b3ppp/2n1p3/3pN3/3P4/4P3/P1P2PPP/1R4K1 w - - 0 1",
+        "viz3_11_deflection-re8-lifts-the-d-file-guard.png",
+        "Overlay 3 · Deflection (remove the defender)",
+        "Qd6 wears a dotted green ring: defended only by Rd8 (a piece, no pawn). White plays Re8+! and after Rxe8 the d-file is open, then Qxd6 wins the queen. Whenever you see a dotted ring on a valuable piece, look at the defender.",
+        "r2r2k1/p4pp1/1p1q3p/8/P7/7P/1P3PP1/R2QR1K1 w - - 0 1",
     ),
     Slide(
         "04-overlay2-réti.png",

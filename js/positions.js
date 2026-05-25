@@ -59,9 +59,9 @@ export const POSITIONS = [
     notes: 'Knight reach theme, isolated. Single white knight on d5 on an otherwise empty board, the reach map fills almost everything inside 3 moves.',
   },
   {
-    name: 'Deflection, the weak defender',
-    fen: '5rk1/1b3ppp/2n1p3/3pN3/3P4/4P3/P1P2PPP/1R4K1 w - - 0 1',
-    notes: 'Deflection theme. Nc6 is defended only by Bb7 (dotted green ring, no pawn anchor). Bb7 itself has no defender, and the b-file is clear. White plays Rxb7!, then Nxc6, winning bishop + knight for free. Naroditsky calls piece-only-defended pieces "deflectable".',
+    name: 'Deflection, Re8 lifts the d-file guard',
+    fen: 'r2r2k1/p4pp1/1p1q3p/8/P7/7P/1P3PP1/R2QR1K1 w - - 0 1',
+    notes: 'Deflection theme. Qd6 wears a dotted green ring: defended only by Rd8 (no pawn anchor). White plays Re8+! and after Rxe8 the d-file is clean, so Qxd6 wins the queen. Classic remove-the-defender.',
   },
   {
     name: 'Réti–Tartakower, the d-file battery',
