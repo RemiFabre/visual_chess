@@ -19,9 +19,9 @@ const MAX_INT = 4;
 function rgb([r, g, b], a = 1) { return `rgba(${r}, ${g}, ${b}, ${a})`; }
 
 function widthFor(n) {
-  // Maps attacker count → stroke width in px.
-  if (n <= 0) return 0;
-  return Math.min(2.5 + (n - 1) * 1.8, 2.5 + (MAX_INT - 1) * 1.8); // 2.5, 4.3, 6.1, 7.9
+  // Constant width regardless of attacker count. Intensity is conveyed by the digit,
+  // not the stroke (varying widths made the borders look uneven and a bit ugly).
+  return n > 0 ? 4.3 : 0;
 }
 
 export function render(container, fen, controls) {
@@ -89,26 +89,27 @@ function drawTopHalf(layer, x, y, color, width) {
 }
 
 function drawCounts(layer, ctrl) {
-  // Both counts horizontally centered: white near the bottom edge, black near the top.
-  // This keeps them off the file/rank coordinate labels in the corners and avoids the
-  // diagonal-opposition visual.
+  // Both counts on the right side of each square: white near the bottom, black near the top.
+  // Right-anchored keeps them off the pieces (which are centered) and avoids the diagonal-opposition
+  // pattern. They still sit on each side's half of the square.
   for (let i = 0; i < 64; i++) {
     const wn = ctrl[i].w.length;
     const bn = ctrl[i].b.length;
     if (wn === 0 && bn === 0) continue;
     const { x, y } = squareXY(i);
-    const cx = x + SQ / 2;
-    if (wn > 0) addCount(layer, cx, y + SQ - 6, wn, WHITE_RGB);
-    if (bn > 0) addCount(layer, cx, y + 18, bn, BLACK_RGB);
+    const rx = x + SQ - 6;
+    if (wn > 0) addCount(layer, rx, y + SQ - 6, wn, WHITE_RGB);
+    if (bn > 0) addCount(layer, rx, y + 18, bn, BLACK_RGB);
   }
 }
 
 function addCount(layer, x, y, n, rgbArr) {
+  // Lighter, more natural-looking digits: smaller weight, thinner outline.
   const t = el('text', {
     x, y,
     fill: rgb(rgbArr),
-    stroke: 'rgba(0,0,0,0.85)', 'stroke-width': 3, 'paint-order': 'stroke',
-    'font-size': 16, 'font-weight': 800, 'text-anchor': 'middle',
+    stroke: 'rgba(255,255,255,0.85)', 'stroke-width': 1.5, 'paint-order': 'stroke',
+    'font-size': 14, 'font-weight': 500, 'text-anchor': 'end',
     'font-family': 'sans-serif',
   });
   t.textContent = String(n);
@@ -145,8 +146,8 @@ export function buildControls(root, state, onChange) {
 }
 export function legendHTML() {
   return `
-    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half (pink), black the top (blue); contested squares show both colors meeting at the side edges. Thicker border = more attackers (capped at 4).</div>
+    <div><b>Borders mode:</b> each side colors only its own half of the square's border. White paints the bottom half (pink), black the top (blue); contested squares show both colors meeting at the side edges. Border thickness is constant; the digit tells us how many attackers.</div>
     <div style="margin-top: 8px;"><b>Numbers mode:</b> just the digits, for when the borders feel busy.</div>
-    <div style="margin-top: 8px;">White's count sits at the bottom of each square (white's side), black's count at the top, both centered to keep clear of the file/rank labels.</div>
+    <div style="margin-top: 8px;">White's count sits at the bottom-right of each square (white's side), black's at the top-right. Right-aligned so they stay off the piece glyph.</div>
   `;
 }
