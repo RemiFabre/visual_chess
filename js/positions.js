@@ -53,6 +53,11 @@ export const POSITIONS = [
     fen: 'r1bqkbnr/pppp1ppp/8/8/8/8/PPPP1PPP/R1BQKBNR w KQkq - 0 1',
     notes: 'Fork-pattern theme. Knights hidden in viz 5, several constellations light up around d6, e6, f6, b6, etc.',
   },
+  {
+    name: 'Lone knight in the centre',
+    fen: '8/8/8/3N4/8/8/8/8 w - - 0 1',
+    notes: 'Knight reach theme, isolated. Single white knight on d5 on an otherwise empty board, the reach map fills almost everything inside 3 moves.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
