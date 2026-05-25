@@ -38,18 +38,18 @@ class Slide:
 # inside each overlay so the reader gets the "wow" first and the explainer second.
 IMAGES: list[Slide] = [
     Slide(
-        "01-overlay3-deflection.png",
+        "01-overlay3-pin.png",
+        "viz3_13_pinned-defender-nf6-is-not-actually-prot.png",
+        "Overlay 3 · The pinned defender",
+        "Nf6 looks safe, it has a solid green ring (pawn-defended by g7). But g7 is iced: pinned to the king by Qg3. White plays Bxf6! — the pawn can't recapture because moving it would expose the king. The ice tells you the defender is fake.",
+        "r4rk1/pp1p1ppp/1qp2n2/8/4P3/1P1P2Q1/PBP2PPP/R4RK1 w - - 0 1",
+    ),
+    Slide(
+        "02-overlay3-deflection.png",
         "viz3_11_deflection-the-weak-defender.png",
         "Overlay 3 · Deflection",
         "Nc6 wears a dotted green ring: defended only by Bb7, no pawn anchor. Bb7 itself is hanging (red ring). White plays Rxb7! and then Nxc6 wins the knight too.",
         "5rk1/1b3ppp/2n1p3/3pN3/3P4/4P3/P1P2PPP/1R4K1 w - - 0 1",
-    ),
-    Slide(
-        "02-overlay3-absolute-pin.png",
-        "viz3_5_absolute-pin-knight-on-the-e-file.png",
-        "Overlay 3 · Pins & protection · baseline",
-        "Big tall ice = absolute pin against the king. Small low ice would mean a lesser pin. Green rings = defended (solid = pawn-anchored, dotted = piece-only).",
-        "4r1k1/pp4pp/8/8/8/8/4N1PP/4K2R w K - 0 1",
     ),
     Slide(
         "03-overlay2-réti.png",

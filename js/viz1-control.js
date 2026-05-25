@@ -7,7 +7,7 @@
 // Goal: see space dominance and pressure from across the room.
 
 import { parseFEN, computeControl } from './chess-utils.js';
-import { createBoardSVG, renderPieces, squareXY, SQ, el } from './board.js';
+import { createBoardSVG, renderPieces, squareXY, SQ, BOARD_SIZE, LIGHT, el } from './board.js';
 
 // Softer than the previous hot pink/navy. Warm peach for white, mid blue for black,
 // both at low saturation so the pieces on top stay readable.
@@ -23,6 +23,12 @@ export function render(container, fen, controls) {
 
   const { svg, layers } = createBoardSVG();
   container.replaceChildren(svg);
+
+  // Single light background instead of the brown/cream pattern, so the overlay colours
+  // don't have to fight the board palette.
+  layers.squares.replaceChildren(el('rect', {
+    x: 0, y: 0, width: BOARD_SIZE, height: BOARD_SIZE, fill: LIGHT,
+  }));
 
   drawProportionalFills(layers.control, ctrl);
   if (controls.showCounts) drawCounts(layers.control, ctrl);

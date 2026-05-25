@@ -68,6 +68,11 @@ export const POSITIONS = [
     fen: 'rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9',
     notes: 'Discovered rook theme (Réti vs Tartakower, Berlin 1910). Rd1 is solid to Bd2, then dotted through Qd3 to d8 where the black king sits. White plays 9.Qd8+!! Kxd8 10.Bg5+ Bd2 moves and the rook smashes home with Rd1xd8#. Viz 2 makes the latent rook threat visible.',
   },
+  {
+    name: 'Pinned defender, Nf6 is not actually protected',
+    fen: 'r4rk1/pp1p1ppp/1qp2n2/8/4P3/1P1P2Q1/PBP2PPP/R4RK1 w - - 0 1',
+    notes: 'Pin theme. Nf6 looks safe (defended by Pg7, solid green ring), but Pg7 is pinned to the king by Qg3 (ice on g7). White plays Bxf6 winning the knight, the pawn can\'t recapture because it would expose Kg8.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
