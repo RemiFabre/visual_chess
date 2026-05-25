@@ -78,6 +78,11 @@ export const POSITIONS = [
     fen: '1r1n1rk1/ppq2p2/2b2bp1/2pB3p/2P4P/4P3/PBQ2PP1/1R3RK1 w - - 0 1',
     notes: 'Pin theme #2. Pf7 is iced (pinned to Kg8 by Bd5), so fxg6 is illegal. White plays Qxg6+ and Kh8 is forced, then Bxf6 is mate on the long diagonal (the f7 pawn is gone, the king has nowhere to run).',
   },
+  {
+    name: "Mar del Plata, King's Indian main line",
+    fen: 'r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 w - - 1 9',
+    notes: 'Space theme. The classic Mar del Plata wedge: white locks the centre with d5 and chases the queenside, black answers with kingside pawns. The Pressure overlay reads as one clear queenside-vs-kingside split.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;
