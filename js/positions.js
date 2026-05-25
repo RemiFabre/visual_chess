@@ -38,6 +38,16 @@ export const POSITIONS = [
     fen: '4k3/p3pppp/8/4N3/8/2b5/PPP1PPPP/4K3 w - - 0 1',
     notes: 'White knight on e5 attacked by Bc3, no defenders, the protection viz fades the glyph and flags it.',
   },
+  {
+    name: 'Royal fork preview',
+    fen: '4k3/3q4/8/8/4N3/8/8/4K3 w - - 0 1',
+    notes: 'White knight on e4 can hop to f6 attacking both the king on e8 and the queen on d7. The forks viz lights it up.',
+  },
+  {
+    name: 'Fork-rich middlegame',
+    fen: 'r3k2r/ppp2ppp/2nb1n2/3qp3/3P4/2N1BN2/PPP1QPPP/R3K2R w KQkq - 0 1',
+    notes: 'Tactical mess with knights for both sides. The forks viz should highlight several squares where a knight move would hit two enemy pieces.',
+  },
 ];
 
 export const DEFAULT_FEN = POSITIONS[1].fen;

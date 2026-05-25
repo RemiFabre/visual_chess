@@ -87,16 +87,16 @@ function drawIce(layer, idx, pin, board) {
   const pinnedVal = pieceValue(pinned.piece);
   const diff = behindVal - pinnedVal;
 
-  // Ice cover, capped so the piece remains visible.
-  // diff 1 → 0.22, 2 → 0.32, 4 → 0.44, 6+ → 0.52. Absolute (behind=K) → 0.55.
+  // Ice cover, shrunk so we can crank opacity up. Goal: the ice reads as solid ice,
+  // not water, but never hides enough of the piece to make it unidentifiable.
   let cover;
-  if (isAbsolute) cover = 0.55;
-  else if (diff <= 1) cover = 0.22;
-  else if (diff === 2) cover = 0.32;
-  else if (diff <= 4) cover = 0.44;
-  else cover = 0.52;
+  if (isAbsolute) cover = 0.42;
+  else if (diff <= 1) cover = 0.18;
+  else if (diff === 2) cover = 0.26;
+  else if (diff <= 4) cover = 0.34;
+  else cover = 0.40;
 
-  const opacity = isAbsolute ? 0.55 : 0.62;
+  const opacity = 0.92;
   const spriteName = (isAbsolute || diff >= 4) ? 'ice_full' : 'ice_half';
 
   const iceH = SQ * cover;

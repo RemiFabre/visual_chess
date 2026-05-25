@@ -119,7 +119,9 @@ function drawSlider(layer, board, from, color) {
     });
     layer.appendChild(solid);
 
-    if (v.blockedBy != null && blockerIdx < v.ray.length - 1) {
+    // Dotted continuation past the blocker, all the way to the board edge.
+    // (The ray itself ends AT the blocker square; we keep walking the direction beyond it.)
+    if (v.blockedBy != null) {
       const [df, dr] = v.dir;
       let f = fileOf(v.blockedBy), r = rankOf(v.blockedBy);
       let prev = solidEnd;

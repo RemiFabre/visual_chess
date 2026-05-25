@@ -104,11 +104,10 @@ function drawCounts(layer, ctrl) {
 }
 
 function addCount(layer, x, y, n, rgbArr) {
-  // Lighter, more natural-looking digits: smaller weight, thinner outline.
+  // No outline: the white halo around the digits made them harder to read.
   const t = el('text', {
     x, y,
     fill: rgb(rgbArr),
-    stroke: 'rgba(255,255,255,0.85)', 'stroke-width': 1.5, 'paint-order': 'stroke',
     'font-size': 14, 'font-weight': 500, 'text-anchor': 'end',
     'font-family': 'sans-serif',
   });
